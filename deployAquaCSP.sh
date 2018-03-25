@@ -46,7 +46,7 @@ sudo systemctl enable docker
 sleep 5
 docker version
 lExitCode=$?
-if [ $lExitCode == "0"];then
+if [ $lExitCode == "0" ];then
   echo "Docker installed successfully"
 else
   echo "Failed to install docker, exiting"
@@ -57,7 +57,7 @@ echo "step end: install docker-ce"
 #Docker login
 echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin $DOCKER_REGISTRY
 lExitCode=$?
-if [ $lExitCode == "0"];then
+if [ $lExitCode == "0" ];then
   echo "Sucessfully logged in to DOCKER_REGISTRY"
 else
   echo "Failed to login to DOCKER_REGISTRY, exiting"
