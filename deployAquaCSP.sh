@@ -12,6 +12,18 @@ AQUA_CONTAINER_NAME=$7
 AQUA_DB_PASSWORD=$8
 echo "step end: globals"
 
+echo "step start: variables"
+echo "ADMIN_USER: $ADMIN_USER"
+echo "SSH_KEY: $SSH_KEY"
+echo "DOCKER_USER: $DOCKER_USER"
+echo "DOCKER_PASS: $DOCKER_PASS"
+echo "DOCKER_REGISTRY: $DOCKER_REGISTRY"
+echo "AQUA_IMAGE: $AQUA_IMAGE"
+echo "AQUA_CONTAINER_NAME: $AQUA_CONTAINER_NAME"
+echo "AQUA_DB_PASSWORD: $AQUA_DB_PASSWORD"
+echo "step end: variables"
+
+
 echo "step start: install docker-ce"
 sudo apt-get update
 sudo apt-get install \
@@ -26,7 +38,7 @@ sudo add-apt-repository \
    $(lsb_release -cs) \
    stable"
 sudo apt-get update
-sudo apt-get install docker-ce
+sudo apt-get install -y docker-ce
 sudo groupadd docker
 sudo usermod -aG docker $ADMIN_USER
 sudo systemctl start docker
