@@ -10,6 +10,8 @@ DOCKER_REGISTRY=$5
 AQUA_IMAGE=$6
 AQUA_CONTAINER_NAME=$7
 AQUA_DB_PASSWORD=$8
+AQUA_LICENSE_TOKEN=$9
+AQUA_ADMIN_PASSWORD=$10
 echo "step end: globals"
 
 echo "step start: variables"
@@ -21,6 +23,8 @@ echo "DOCKER_REGISTRY: $DOCKER_REGISTRY"
 echo "AQUA_IMAGE: $AQUA_IMAGE"
 echo "AQUA_CONTAINER_NAME: $AQUA_CONTAINER_NAME"
 echo "AQUA_DB_PASSWORD: $AQUA_DB_PASSWORD"
+echo "AQUA_LICENSE_TOKEN: $AQUA_LICENSE_TOKEN"
+echo "AQUA_ADMIN_PASSWORD: $AQUA_ADMIN_PASSWORD"
 echo "step end: variables"
 
 
@@ -43,13 +47,13 @@ sudo groupadd docker
 sudo usermod -aG docker $ADMIN_USER
 sudo systemctl start docker
 sudo systemctl enable docker
-sleep 5
+sleep 10
 docker version
 lExitCode=$?
 if [ $lExitCode == "0" ];then
   echo "Docker installed successfully"
 else
-  echo "Failed to install docker, exiting"
+  echo "Failed to install docker, exit code : $lExitCode, exiting"
   exit 1
 fi
 echo "step end: install docker-ce"
@@ -60,7 +64,7 @@ lExitCode=$?
 if [ $lExitCode == "0" ];then
   echo "Sucessfully logged in to DOCKER_REGISTRY"
 else
-  echo "Failed to login to DOCKER_REGISTRY, exiting"
+  echo "Failed to login to DOCKER_REGISTRY, exit code : $lExitCode , exiting"
   exit 1
 fi
 
@@ -76,6 +80,8 @@ sudo docker run -d -p 5432:5432 -p 3622:3622 -p 8080:8080 --name $AQUA_CONTAINER
    -e SCALOCK_AUDIT_DBPASSWORD=${AQUA_DB_PASSWORD} \
    -e SCALOCK_AUDIT_DBNAME=slk_audit \
    -e SCALOCK_AUDIT_DBHOST=$(hostname -i) \
+   -e LICENSE_TOKEN=${AQUA_LICENSE_TOKEN} \
+   -e ADMIN_PASSWORD=${AQUA_ADMIN_PASSWORD} \
    -v /var/lib/postgresql/data:/var/lib/postgresql/data \
    -v /var/run/docker.sock:/var/run/docker.sock \
    $AQUA_IMAGE
