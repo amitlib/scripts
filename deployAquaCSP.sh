@@ -59,7 +59,7 @@ fi
 echo "step end: install docker-ce"
 
 #Docker login
-echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin $DOCKER_REGISTRY
+DOCK_LOGIN=$(echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin $DOCKER_REGISTRY)
 lExitCode=$?
 if [ $lExitCode == "0" ];then
   echo "Sucessfully logged in to DOCKER_REGISTRY"
