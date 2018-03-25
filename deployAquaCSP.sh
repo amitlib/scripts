@@ -84,5 +84,13 @@ sudo docker run -d -p 5432:5432 -p 3622:3622 -p 8080:8080 --name $AQUA_CONTAINER
    -e ADMIN_PASSWORD=${AQUA_ADMIN_PASSWORD} \
    -v /var/lib/postgresql/data:/var/lib/postgresql/data \
    -v /var/run/docker.sock:/var/run/docker.sock \
-   $AQUA_IMAGE
+ $AQUA_IMAGE
+ 
+ lExitCode=$?
+if [ $lExitCode == "0" ];then
+  echo "Sucessfully ran $AQUA_IMAGE"
+else
+  echo "Failed to run $AQUA_IMAGE, exit code : $lExitCode , exiting"
+  exit 1
+fi
 echo "step start: deploy Aqua CSP"
