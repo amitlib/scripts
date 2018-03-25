@@ -59,7 +59,7 @@ fi
 echo "step end: install docker-ce"
 
 #Docker login
-DOCK_LOGIN=$(echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin $DOCKER_REGISTRY)
+echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin $DOCKER_REGISTRY
 lExitCode=$?
 if [ $lExitCode == "0" ];then
   echo "Sucessfully logged in to DOCKER_REGISTRY"
@@ -70,7 +70,7 @@ fi
 
 #Run Aqua CASP
 echo "step start: deploy Aqua CSP"
-sudo docker run -d -p 5432:5432 -p 3622:3622 -p 8080:8080 --name $AQUA_CONTAINER_NAME \
+docker run -d -p 5432:5432 -p 3622:3622 -p 8080:8080 --name $AQUA_CONTAINER_NAME \
    -e POSTGRES_PASSWORD=${AQUA_DB_PASSWORD} \
    -e SCALOCK_DBUSER=postgres \
    -e SCALOCK_DBPASSWORD=${AQUA_DB_PASSWORD} \
