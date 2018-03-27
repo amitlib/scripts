@@ -2,11 +2,12 @@
 
 #Globals
 echo "step start: globals"
-SERVER_IP="${1:-10.0.0.5}"
-DOCKER_PASS=$2
-DOCKER_USER=$3
-AQUA_REPO="${4:-aquadev}"
-AQUA_VERSION="${5:-3.0.1}"
+GENLOAD="${1:-no}"
+SERVER_IP="${2:-10.0.0.5}"
+DOCKER_PASS=$3
+DOCKER_USER=$4
+AQUA_REPO="${5:-aquadev}"
+AQUA_VERSION="${6:-3.0.1}"
 echo "step end: globals"
 
 #Pre config
@@ -42,3 +43,13 @@ docker run --rm -e SILENT=yes \
 -v /var/run/docker.sock:/var/run/docker.sock \
 $AQUA_REPO/agent:$AQUA_VERSION
 echo "step end: aqua agent"
+
+#Load agents
+if [ $GENLOAD == "yes" ];then
+  sleep 60
+  mkdir -p /home/$(whoami)/scripts/logs
+  chmod -R 777 /home/$(whoami)/scripts/
+  cd /home/$(whoami)/scripts/
+  wget https://raw.githubusercontent.com/amitlib/scripts/master/loadGen.sh
+  ./loadGen.sh
+fi
