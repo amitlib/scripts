@@ -51,5 +51,7 @@ if [ $GENLOAD == "yes" ];then
   chmod -R 777 /home/$(whoami)/scripts/
   cd /home/$(whoami)/scripts/
   wget https://raw.githubusercontent.com/amitlib/scripts/master/loadGen.sh
+  dos2unix loadGen.sh
+  chmod 777 loadGen.sh
   ./loadGen.sh
 fi
