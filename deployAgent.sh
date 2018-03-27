@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#Cleanup containers from VM
+sudo docker system prune --all --force --volumes
+
 #Globals
 echo "step start: globals"
 GENLOAD="${1:-no}"
