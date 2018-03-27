@@ -3,6 +3,6 @@ container_array=(alpine:2.7 nginx:latest nginx:1.12-alpine nginx:1.13 nginx:stab
 lFlag="0"
 for i in ${container_array[@]};do
     lImageName=$(echo $i | awk -F: '{print $1}')
-    docker run --rm --name ${lImageName}_${lFlag} -it -e NAME1={aqua.secret1} -e NAME2={aqua.secret2} -e AQUA_SERVICE=${DND_NAME} -v /tmp/scripts/logs:/tmp -d $i
+    docker run --rm --name ${lImageName}_${lFlag} -it -e NAME1={aqua.secret1} -e NAME2={aqua.secret2} -e AQUA_SERVICE=srv-$(hostname) -d $i
     lFlag=$(($lFlag+1))
 done
