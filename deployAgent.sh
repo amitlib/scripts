@@ -15,8 +15,8 @@ echo "step end: globals"
 
 #Pre config
 echo "step start: pre-config"
-touch /home/ubuntu/scripts/logs/extension.log
-chmod 777 /home/ubuntu/scripts/logs/extension.log
+touch /home/$(whoami)/scripts/logs/extension.log
+chmod 777 /home/$(whoami)/scripts/logs/extension.log
 echo "step end: pre-config"
 
 #Validations
