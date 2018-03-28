@@ -6,11 +6,12 @@ sudo docker system prune --all --force --volumes
 #Globals
 echo "step start: globals"
 GENLOAD="${1:-no}"
-SERVER_IP="${2:-10.0.0.5}"
-DOCKER_PASS=$3
-DOCKER_USER=$4
-AQUA_REPO="${5:-aquadev}"
-AQUA_VERSION="${6:-3.0.1}"
+INSTALLDOCKER="${2:-no}"
+SERVER_IP="${3:-10.0.0.5}"
+DOCKER_PASS=$4
+DOCKER_USER=$5
+AQUA_REPO="${6:-aquadev}"
+AQUA_VERSION="${7:-3.0.1}"
 echo "step end: globals"
 
 #Pre config
@@ -18,6 +19,40 @@ echo "step start: pre-config"
 touch /home/$(whoami)/scripts/logs/extension.log
 chmod 777 /home/$(whoami)/scripts/logs/extension.log
 echo "step end: pre-config"
+
+if [ $INSTALLDOCKER == "yes"];then
+  #install docker
+  echo "step start: install docker-ce"
+  sudo apt-get update
+  sudo apt-get install \
+      apt-transport-https \
+      ca-certificates \
+      curl \
+      software-properties-common
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  sudo apt-key fingerprint 0EBFCD88
+  sudo add-apt-repository \
+     "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+     $(lsb_release -cs) \
+     stable"
+  sudo apt-get update
+  sudo apt-get install -y docker-ce sqlite3
+  sudo groupadd docker
+  sudo usermod -aG docker $(whoami)
+  sudo systemctl start docker
+  sudo systemctl enable docker
+   sudo apt-get update
+  sleep 10
+  docker version
+  lExitCode=$?
+  if [ $lExitCode == "0" ];then
+    echo "Docker installed successfully"
+  else
+    echo "Failed to install docker, exit code : $lExitCode, exiting"
+    exit 1
+  fi
+  echo "step end: install docker-ce"
+fi
 
 #Validations
 echo "step start: validations"
