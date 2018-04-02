@@ -36,7 +36,7 @@ if [ $INSTALLDOCKER == "yes"];then
      $(lsb_release -cs) \
      stable"
   sudo apt-get update
-  sudo apt-get install -y docker-ce sqlite3
+  sudo apt-get install -y docker-ce sqlite3 jq postgresql-client
   sudo groupadd docker
   sudo usermod -aG docker $(whoami)
   sudo systemctl start docker
@@ -59,7 +59,6 @@ echo "step start: validations"
 echo "SERVER_IP: $SERVER_IP" >> /home/ubuntu/scripts/logs/extension.log
 echo "AQUA_REPO: $AQUA_REPO" >> /home/ubuntu/scripts/logs/extension.log
 echo "AQUA_VERSION: $AQUA_VERSION" >> /home/ubuntu/scripts/logs/extension.log
-echo "DOCKER_PASS: $DOCKER_PASS" >> /home/ubuntu/scripts/logs/extension.log
 BABA=$(echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin docker.io)
 echo "step end: validations"
 
