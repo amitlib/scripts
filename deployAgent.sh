@@ -7,7 +7,7 @@ sudo docker system prune --all --force --volumes
 echo "step start: globals"
 GENLOAD="${1:-no}"
 INSTALLDOCKER="${2:-no}"
-SERVER_IP="${3:-10.0.0.5}"
+SERVER_IP="${3:-10.0.0.4}"
 DOCKER_PASS=$4
 DOCKER_USER=$5
 AQUA_REPO="${6:-aquasec}"
