@@ -1,8 +1,4 @@
 #!/bin/bash
-
-#Cleanup containers from VM
-sudo docker system prune --all --force --volumes
-
 #Globals
 echo "step start: globals"
 GENLOAD="${1:-no}"
@@ -13,6 +9,11 @@ DOCKER_USER=$5
 AQUA_REPO="${6:-aquasec}"
 AQUA_VERSION="${7:-3.0.1}"
 echo "step end: globals"
+
+#Cleanup containers from VM
+if [ $INSTALLDOCKER == "no" ];then
+  sudo docker system prune --all --force --volumes
+fi
 
 #Pre config
 echo "step start: pre-config"
