@@ -16,11 +16,13 @@ echo "step end: globals"
 
 #Pre config
 echo "step start: pre-config"
+mkdir -p /home/$(whoami)/scripts/logs
+chmod -R 777 /home/$(whoami)/scripts
 touch /home/$(whoami)/scripts/logs/extension.log
 chmod 777 /home/$(whoami)/scripts/logs/extension.log
 echo "step end: pre-config"
 
-if [ $INSTALLDOCKER == "yes"];then
+if [ $INSTALLDOCKER == "yes" ];then
   #install docker
   echo "step start: install docker-ce"
   sudo apt-get update
