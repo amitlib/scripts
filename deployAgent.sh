@@ -8,6 +8,7 @@ DOCKER_PASS=$4
 DOCKER_USER=$5
 AQUA_REPO="${6:-aquasec}"
 AQUA_VERSION="${7:-3.0.1}"
+ELK_IP="${8:-172.19.0.4}"
 echo "step end: globals"
 
 #Cleanup containers from VM
@@ -72,6 +73,15 @@ docker run --volume=/:/rootfs:ro --volume=/var/run:/var/run:rw --volume=/sys:/sy
 --volume=/var/lib/docker/:/var/lib/docker:ro --volume=/dev/disk/:/dev/disk:ro -p 8090:8080 --detach=true \
 --name=cadvisor google/cadvisor:latest
 echo "step end: cadvisor"
+
+#Run Cadvisor
+echo "step start: logspout"
+docker run --name="logspout" \
+--volume=/var/run/docker.sock:/var/run/docker.sock -d \
+-e ROUTE_URIS=logstash+tcp://$ELK_IP:5000 \
+libermanov/logspout-logstash:v1
+#Run Cadvisor
+echo "step end: logspout"
 
 #Run Aqua Agent
 echo "step start: aqua agent"
