@@ -66,6 +66,15 @@ echo "AQUA_VERSION: $AQUA_VERSION" >> /home/ubuntu/scripts/logs/extension.log
 BABA=$(echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin docker.io)
 echo "step end: validations"
 
+
+#Run logstash
+echo "step start: logspout"
+docker run --name="logspout" \
+--volume=/var/run/docker.sock:/var/run/docker.sock -d \
+-e ROUTE_URIS=logstash+tcp://$ELK_IP:5000 \
+libermanov/logspout-logstash:v1
+echo "step end: logspout"
+
 cd /home/$(whoami)/scripts
 #Run Cadvisor
 echo "step start: cadvisor"
@@ -73,15 +82,6 @@ docker run --volume=/:/rootfs:ro --volume=/var/run:/var/run:rw --volume=/sys:/sy
 --volume=/var/lib/docker/:/var/lib/docker:ro --volume=/dev/disk/:/dev/disk:ro -p 8090:8080 --detach=true \
 --name=cadvisor google/cadvisor:latest
 echo "step end: cadvisor"
-
-#Run Cadvisor
-echo "step start: logspout"
-docker run --name="logspout" \
---volume=/var/run/docker.sock:/var/run/docker.sock -d \
--e ROUTE_URIS=logstash+tcp://$ELK_IP:5000 \
-libermanov/logspout-logstash:v1
-#Run Cadvisor
-echo "step end: logspout"
 
 #Run Aqua Agent
 echo "step start: aqua agent"
