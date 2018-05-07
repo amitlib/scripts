@@ -71,6 +71,7 @@ echo "step end: validations"
 echo "step start: logspout"
 docker run --name="logspout" \
 --volume=/var/run/docker.sock:/var/run/docker.sock -d \
+--restart=always \
 -e ROUTE_URIS=logstash+tcp://$ELK_IP:5000 \
 libermanov/logspout-logstash:v1
 echo "step end: logspout"
@@ -79,6 +80,7 @@ cd /home/$(whoami)/scripts
 #Run Cadvisor
 echo "step start: cadvisor"
 docker run --volume=/:/rootfs:ro --volume=/var/run:/var/run:rw --volume=/sys:/sys:ro \
+--restart=always \
 --volume=/var/lib/docker/:/var/lib/docker:ro --volume=/dev/disk/:/dev/disk:ro -p 8090:8080 --detach=true \
 --name=cadvisor google/cadvisor:latest
 echo "step end: cadvisor"
@@ -90,6 +92,7 @@ docker run --rm -e SILENT=yes \
 -e AQUA_SERVER=${SERVER_IP}:3622 \
 -e AQUA_LOGICAL_NAME="scale-enforcer-$(hostname)" \
 -e RESTART_CONTAINERS="no" \
+--restart=unless-stopped \
 -v /var/run/docker.sock:/var/run/docker.sock \
 $AQUA_REPO/agent:$AQUA_VERSION
 echo "step end: aqua agent"
