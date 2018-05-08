@@ -92,7 +92,6 @@ docker run --rm -e SILENT=yes \
 -e AQUA_SERVER=${SERVER_IP}:3622 \
 -e AQUA_LOGICAL_NAME="scale-enforcer-$(hostname)" \
 -e RESTART_CONTAINERS="no" \
---restart=unless-stopped \
 -v /var/run/docker.sock:/var/run/docker.sock \
 $AQUA_REPO/agent:$AQUA_VERSION
 echo "step end: aqua agent"
