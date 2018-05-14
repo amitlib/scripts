@@ -8,7 +8,7 @@ DOCKER_PASS=$4
 DOCKER_USER=$5
 AQUA_REPO="${6:-aquadev}"
 AQUA_VERSION="${7:-master}"
-ELK_IP="${8:-51.144.47.61}"
+ELK_IP="${8:-104.40.240.47}"
 echo "step end: globals"
 
 #Cleanup containers from VM
