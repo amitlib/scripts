@@ -6,8 +6,8 @@ INSTALLDOCKER="${2:-no}"
 SERVER_IP="${3:-10.0.0.4}"
 DOCKER_PASS=$4
 DOCKER_USER=$5
-AQUA_REPO="${6:-aquasec}"
-AQUA_VERSION="${7:-3.0.2}"
+AQUA_REPO="${6:-aquadev}"
+AQUA_VERSION="${7:-nati_3.0.3}"
 ELK_IP="${8:-51.144.47.61}"
 echo "step end: globals"
 
