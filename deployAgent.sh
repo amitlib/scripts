@@ -7,7 +7,7 @@ SERVER_IP="${3:-10.0.0.4}"
 DOCKER_PASS=$4
 DOCKER_USER=$5
 AQUA_REPO="${6:-aquadev}"
-AQUA_VERSION="${7:-nati_3.0.3}"
+AQUA_VERSION="${7:-master}"
 ELK_IP="${8:-51.144.47.61}"
 echo "step end: globals"
 
