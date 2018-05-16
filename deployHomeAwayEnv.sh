@@ -10,6 +10,7 @@ AQUA_DB_PASSWORD=${6}
 AQUA_TOKEN=${7}
 AQUA_ADMIN_PASSWORD=${8}
 MONITOR_POSTGRES_URL=${9}
+AQUASCALE_REG_PASSWORD=${10}
 AQUA_DB_USER="aquaadm@${AQUA_DB_NAME}"
 AQUA_DB_SERVER="${5}.postgres.database.azure.com"
 HOST_VM=$(hostname | awk -F'-' ' { print $NF } ')
@@ -133,6 +134,17 @@ echo "step end: change dashboard name"
 echo "step start: add dashboard"
 curl -u 'admin:admin' -d  @grafanaDashboardAquaNDockerMonitoring.json H 'Accept: application/json' -H 'Content-Type: application/json' -X POST "http://$(hostname -i):3000/api/dashboards/db"
 echo "step start: add dashboard"
+}
+
+addRegestries()
+{
+echo "step start: add RHEL regestry"
+RHEL_REG=$(curl  -v -s -H 'Content-Type: application/json' -u "administrator:$AQUA_ADMIN_PASSWORD" -X POST http://$(hostname -i):8080/api/v1/registries -d '{"name": "registry.access.redhat.com","type": "V1/V2","url": "https://registry.access.redhat.com","username": "","password": "","auto_pull": false}')
+echo "step end: add RHEL regestry"
+
+echo "step start: add scale regestry"
+SCALE_REG=$(curl  -v -s -H 'Content-Type: application/json' -u "administrator:$AQUA_ADMIN_PASSWORD" -X POST http://$(hostname -i):8080/api/v1/registries -d '{"name": "aquascale","type": "ACR","url": "https://aquascale.azurecr.io","username": "aquascale","password": "'$AQUASCALE_REG_PASSWORD'","auto_pull": false}')
+echo "step end: add scale regestry"
 }
 
 main()
