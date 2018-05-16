@@ -16,7 +16,7 @@ AQUA_DB_SERVER="${5}.postgres.database.azure.com"
 HOST_VM=$(hostname | awk -F'-' ' { print $NF } ')
 DASHBOARD_NAME="Aqua Monitor - ${AQUA_REGISTRY}/${AQUA_VERSION}"
 
-cd /home/${whoami}/scripts
+cd /home/$(whoami)/scripts
 
 echo "step start: validate input parameters"
 if [ $# -lt 10 ];then
@@ -29,7 +29,7 @@ echo "step end: validate input parameters"
 
 
 #functions
-check_exit {
+function check_exit {
     cmd_output=$($@)
     local status=$?
     echo $status
