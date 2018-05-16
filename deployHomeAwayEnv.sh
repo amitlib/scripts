@@ -19,8 +19,8 @@ DASHBOARD_NAME="Aqua Monitor - ${AQUA_REGISTRY}/${AQUA_VERSION}"
 cd /home/${whoami}/scripts
 
 echo "step start: validate input parameters"
-if [ $# -lt 9 ];then
-    echo "Missing parameters: arg1:$1,arg2:$2,arg3:$3,arg4:$4,arg5:$5,arg6:$6,arg7:$7,arg8:$8,arg9:$9"
+if [ $# -lt 10 ];then
+    echo "Missing parameters: arg1:$1,arg2:$2,arg3:$3,arg4:$4,arg5:$5,arg6:$6,arg7:$7,arg8:$8,arg9:$9,arg10:$10"
     exit 1
 else
     echo "Parameter validation passed successfully"
@@ -70,6 +70,10 @@ echo "step start:Deploying Aqua server version: $AQUA_REG/$AQUA_VER "
     -e SCALOCK_AUDIT_DBHOST=$AQUA_DB_SERVER \
     -v /var/run/docker.sock:/var/run/docker.sock \
     $AQUA_REGISTRY/server:$AQUA_VERSION
+    
+    echo "step start: monitoring server logs to validate startup"
+    ( docker logs aqua-web -f & ) | grep -q "http server started"
+    echo "step end: monitoring server logs to validate startup"
 echo "step start:Deploying Aqua server version: $AQUA_REG/$AQUA_VER "
 elif [ $HOST_VM == "vm1" ];then
     docker run -d --name aqua-gateway \
