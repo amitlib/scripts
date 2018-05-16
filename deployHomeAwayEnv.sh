@@ -119,7 +119,7 @@ fi
 
 deployMonitors()
 {
-if [ $HOST_VM == "vm3" ];then
+if [ $HOST_VM == "vm2" ];then
     sleep 30
     echo "step start: add postgresql data source"
     curl -H -u 'admin:admin' -d '{"name":"NFT-Postgres","type":"postgres","access": "proxy","url": '"${MONITOR_POSTGRES_URL}:5432"',"password": "Pepelib123!","user": "postgres","database": "postgres","basicAuth": false,"isDefault": false,"jsonData": {"sslmode": "disable"},"readOnly": false}' -X POST "http://$(hostname -I):3000/api/datasources"
@@ -161,5 +161,6 @@ main()
 check_exit deployCadvisor
 check_exit deployAqua
 check_exit deployMonitors
+check_exit addRegestries
 }
 main
