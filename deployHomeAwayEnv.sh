@@ -13,6 +13,7 @@ MONITOR_POSTGRES_URL=${9}
 AQUA_DB_USER="aquaadm@${AQUA_DB_NAME}"
 AQUA_DB_SERVER="${5}.postgres.database.azure.com"
 HOST_VM=$(hostname | awk -F'-' ' { print $NF } ')
+DASHBOARD_NAME="Aqua Monitor - ${AQUA_REGISTRY}/${AQUA_VERSION}"
 
 cd /home/${whoami}/scripts
 
@@ -125,8 +126,12 @@ echo "step start: get Grafana dashboard from GitHub"
 wget https://raw.githubusercontent.com/amitlib/scripts/master/grafanaDashboardAquaNDockerMonitoring.json
 echo "step end: get Grafana dashboard from GitHub"
 
+echo "step start: change dashboard name"
+cat grafanaDashboardAquaNDockerMonitoring.json  | jq -r --arg DASHBOARD_NAME "$DASHBOARD_NAME" '.title=$DASHBOARD_NAME' | sponge grafanaDashboardAquaNDockerMonitoring.json
+echo "step end: change dashboard name"
+
 echo "step start: add dashboard"
-curl -u 'admin:admin' -d  @aquaNDockerMonitoring.json H 'Accept: application/json' -H 'Content-Type: application/json' -X POST "http://$(hostname -i):3000/api/dashboards/db"
+curl -u 'admin:admin' -d  @grafanaDashboardAquaNDockerMonitoring.json H 'Accept: application/json' -H 'Content-Type: application/json' -X POST "http://$(hostname -i):3000/api/dashboards/db"
 echo "step start: add dashboard"
 }
 
