@@ -17,6 +17,7 @@ HOST_VM=$(hostname | awk -F'-' ' { print $NF } ')
 DASHBOARD_NAME="Aqua Monitor - ${AQUA_REGISTRY}/${AQUA_VERSION}"
 
 cd /home/$(whoami)/scripts
+docker login -u $DOCKER_HUB_REGISTRY_USER -p $DOCKER_HUB_REGISTRY_PASSWORD
 
 echo "step start: validate input parameters"
 if [ $# -lt 10 ];then
