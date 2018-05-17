@@ -17,7 +17,8 @@ HOST_VM=$(hostname | awk -F'-' ' { print $NF } ')
 DASHBOARD_NAME="Aqua Monitor - ${AQUA_REGISTRY}/${AQUA_VERSION}"
 
 cd /home/$(whoami)/scripts
-docker login -u $DOCKER_HUB_REGISTRY_USER -p $DOCKER_HUB_REGISTRY_PASSWORD
+#login to private registry
+echo $DOCKER_HUB_REGISTRY_PASSWORD | docker login -u $DOCKER_HUB_REGISTRY_USER --password-stdin docker.io
 
 echo "step start: validate input parameters"
 if [ $# -lt 10 ];then
@@ -37,6 +38,7 @@ function check_exit {
     if [ $status -ne 0 ]; then
         echo "error with $1" >&2
     fi
+    echo "sucess with $1, return code: $status"
     return $status
 }
 
@@ -122,11 +124,11 @@ deployMonitors()
 if [ $HOST_VM == "vm2" ];then
     sleep 30
     echo "step start: add postgresql data source"
-    curl -H -u 'admin:admin' -d '{"name":"NFT-Postgres","type":"postgres","access": "proxy","url": '"${MONITOR_POSTGRES_URL}:5432"',"password": "Pepelib123!","user": "postgres","database": "postgres","basicAuth": false,"isDefault": false,"jsonData": {"sslmode": "disable"},"readOnly": false}' -X POST "http://$(hostname -I):3000/api/datasources"
+    curl -H -u 'admin:admin' -d '{"name":"NFT-Postgres","type":"postgres","access": "proxy","url": "'$MONITOR_POSTGRES_URL':5432","password": "Pepelib123!","user": "postgres","database": "postgres","basicAuth": false,"isDefault": false,"jsonData": {"sslmode": "disable"},"readOnly": false}' -X POST "http://$(hostname -i):3000/api/datasources"
     echo "step end: add postgresql data source"
 
     echo "step start: add prometheus data source"
-    curl -H -u 'admin:admin' -d '{"name":"Prometheus","type":"prometheus","access": "proxy","url": '"http://$(hostname -i):9090"',"password": "","user": "","database": "","basicAuth": false,"isDefault": true,"jsonData": {},"readOnly": false}' -X POST "http://$(hostname -I):3000/api/datasources"
+    curl -H -u 'admin:admin' -d '{"name":"Prometheus","type":"prometheus","access": "proxy","url": "http://'$(hostname -i)':9090","password": "","user": "","database": "","basicAuth": false,"isDefault": true,"jsonData": {},"readOnly": false}' -X POST "http://$(hostname -i):3000/api/datasources"
     echo "step end: add prometheus data source"
 
     echo "step start: get Grafana dashboard from GitHub"
@@ -138,7 +140,7 @@ if [ $HOST_VM == "vm2" ];then
     echo "step end: change dashboard name"
 
     echo "step start: add dashboard"
-    curl -u 'admin:admin' -d  @grafanaDashboardAquaNDockerMonitoring.json H 'Accept: application/json' -H 'Content-Type: application/json' -X POST "http://$(hostname -i):3000/api/dashboards/db"
+    curl -u 'admin:admin' -d @grafanaDashboardAquaNDockerMonitoring.json H 'Accept: application/json' -H 'Content-Type: application/json' -X POST "http://$(hostname -i):3000/api/dashboards/db"
     echo "step start: add dashboard"
 fi
 }
