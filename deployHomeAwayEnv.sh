@@ -124,11 +124,11 @@ deployMonitors()
 if [ $HOST_VM == "vm2" ];then
     sleep 30
     echo "step start: add postgresql data source"
-    curl -H -u 'admin:admin' -d '{"name":"NFT-Postgres","type":"postgres","access": "proxy","url": "'$MONITOR_POSTGRES_URL':5432","password": "Pepelib123!","user": "postgres","database": "postgres","basicAuth": false,"isDefault": false,"jsonData": {"sslmode": "disable"},"readOnly": false}' -X POST "http://$(hostname -i):3000/api/datasources"
+    curl -s -H 'Content-Type: application/json' -u 'admin:admin' -d '{"name":"NFT-Postgres","type":"postgres","access": "proxy","url": "'$MONITOR_POSTGRES_URL':5432","password": "Pepelib123!","user": "postgres","database": "postgres","basicAuth": false,"isDefault": false,"jsonData": {"sslmode": "disable"},"readOnly": false}' -X POST "http://$(hostname -i):3000/api/datasources"
     echo "step end: add postgresql data source"
 
     echo "step start: add prometheus data source"
-    curl -H -u 'admin:admin' -d '{"name":"Prometheus","type":"prometheus","access": "proxy","url": "http://'$(hostname -i)':9090","password": "","user": "","database": "","basicAuth": false,"isDefault": true,"jsonData": {},"readOnly": false}' -X POST "http://$(hostname -i):3000/api/datasources"
+    curl -s -H 'Content-Type: application/json' -u 'admin:admin' -d '{"name":"Prometheus","type":"prometheus","access": "proxy","url": "http://'$(hostname -i)':9090","password": "","user": "","database": "","basicAuth": false,"isDefault": true,"jsonData": {},"readOnly": false}' -X POST "http://$(hostname -i):3000/api/datasources"
     echo "step end: add prometheus data source"
 
     echo "step start: get Grafana dashboard from GitHub"
@@ -140,7 +140,7 @@ if [ $HOST_VM == "vm2" ];then
     echo "step end: change dashboard name"
 
     echo "step start: add dashboard"
-    curl -u 'admin:admin' -d @grafanaDashboardAquaNDockerMonitoring.json H 'Accept: application/json' -H 'Content-Type: application/json' -X POST "http://$(hostname -i):3000/api/dashboards/db"
+    curl -s -H 'Content-Type: application/json' -H 'Content-Type: application/json' -u 'admin:admin' -d @grafanaDashboardAquaNDockerMonitoring.json -X POST "http://$(hostname -i):3000/api/dashboards/db"
     echo "step start: add dashboard"
 fi
 }
@@ -149,11 +149,11 @@ addRegestries()
 {
 if [ $HOST_VM == "vm0" ];then
     echo "step start: add RHEL regestry"
-    RHEL_REG=$(curl  -v -s -H 'Content-Type: application/json' -u "administrator:$AQUA_ADMIN_PASSWORD" -X POST http://$(hostname -i):8080/api/v1/registries -d '{"name": "registry.access.redhat.com","type": "V1/V2","url": "https://registry.access.redhat.com","username": "","password": "","auto_pull": false}')
+    RHEL_REG=$(curl -s -H 'Content-Type: application/json' -u "administrator:$AQUA_ADMIN_PASSWORD" -X POST http://$(hostname -i):8080/api/v1/registries -d '{"name": "registry.access.redhat.com","type": "V1/V2","url": "https://registry.access.redhat.com","username": "","password": "","auto_pull": false}')
     echo "step end: add RHEL regestry"
 
     echo "step start: add scale regestry"
-    SCALE_REG=$(curl  -v -s -H 'Content-Type: application/json' -u "administrator:$AQUA_ADMIN_PASSWORD" -X POST http://$(hostname -i):8080/api/v1/registries -d '{"name": "aquascale","type": "ACR","url": "https://aquascale.azurecr.io","username": "aquascale","password": "'$AQUASCALE_REG_PASSWORD'","auto_pull": false}')
+    SCALE_REG=$(curl -s -H 'Content-Type: application/json' -u "administrator:$AQUA_ADMIN_PASSWORD" -X POST http://$(hostname -i):8080/api/v1/registries -d '{"name": "aquascale","type": "ACR","url": "https://aquascale.azurecr.io","username": "aquascale","password": "'$AQUASCALE_REG_PASSWORD'","auto_pull": false}')
     echo "step end: add scale regestry"
 fi
 }
