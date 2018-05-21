@@ -8,7 +8,7 @@ DOCKER_PASS=$4
 DOCKER_USER=$5
 AQUA_REPO="${6:-aquadev}"
 AQUA_VERSION="${7:-master}"
-ELK_IP="${8:-104.40.240.47}"
+ELK_IP="${8:-51.144.47.61}"
 echo "step end: globals"
 
 #Cleanup containers from VM
@@ -69,11 +69,13 @@ echo "step end: validations"
 
 #Run logstash
 echo "step start: logspout"
-docker run --name="logspout" \
---volume=/var/run/docker.sock:/var/run/docker.sock -d \
---restart=always \
--e ROUTE_URIS=logstash+tcp://$ELK_IP:5000 \
-libermanov/logspout-logstash:v1
+sudo docker run -d  \
+	   --name logspout-$(hostname) \
+	--volume=/var/run/docker.sock:/var/run/docker.sock \
+	    --restart=unless-stopped \
+	gliderlabs/logspout \
+	raw://${ELK_IP}:5000?filter.name=*aqua*
+
 echo "step end: logspout"
 
 cd /home/$(whoami)/scripts
