@@ -25,5 +25,5 @@ for i in $(seq 1 $NO_OF_SCANNERS);do
 docker run --name scanner${i}-$(hostname | awk -F'-' ' { print $NF } ') -d \
 -v /var/run/docker.sock:/var/run/docker.sock \
 ${AQUA_REGISTRY}/scanner-cli:${AQUA_VERSION} daemon \
---user administrator --password $AQUA_ADMIN_PASSWORD --host $AQUA_SERVER_IP 
+--direct-cc --user administrator --password $AQUA_ADMIN_PASSWORD --host $AQUA_SERVER_IP 
 done
