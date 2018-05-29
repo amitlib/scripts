@@ -140,7 +140,7 @@ if [ $HOST_VM == "vm2" ];then
     echo "step end: change dashboard name"
 
     echo "step start: add dashboard"
-    curl -s -H 'Content-Type: application/json' -H 'Content-Type: application/json' -u 'admin:admin' -d @grafanaDashboardAquaNDockerMonitoring.json -X POST "http://$(hostname -i):3000/api/dashboards/db"
+    #curl -s -H 'Content-Type: application/json' -H 'Content-Type: application/json' -u 'admin:admin' -d @grafanaDashboardAquaNDockerMonitoring.json -X POST "http://$(hostname -i):3000/api/dashboards/db"
     echo "step start: add dashboard"
 fi
 }
