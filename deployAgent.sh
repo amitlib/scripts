@@ -8,7 +8,7 @@ DOCKER_PASS=$4
 DOCKER_USER=$5
 AQUA_REPO="${6:-aquadev}"
 AQUA_VERSION="${7:-master}"
-ELK_IP="${8:-104.40.240.47}"
+ELK_IP="${8}"
 echo "step end: globals"
 
 #Cleanup containers from VM
@@ -63,17 +63,19 @@ echo "step start: validations"
 echo "SERVER_IP: $SERVER_IP" >> /home/ubuntu/scripts/logs/extension.log
 echo "AQUA_REPO: $AQUA_REPO" >> /home/ubuntu/scripts/logs/extension.log
 echo "AQUA_VERSION: $AQUA_VERSION" >> /home/ubuntu/scripts/logs/extension.log
-BABA=$(echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin docker.io)
+BABA=$(echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin automation.azurecr.io)
 echo "step end: validations"
 
 
 #Run logstash
 echo "step start: logspout"
-docker run --name="logspout" \
---volume=/var/run/docker.sock:/var/run/docker.sock -d \
---restart=always \
--e ROUTE_URIS=logstash+tcp://$ELK_IP:5000 \
-libermanov/logspout-logstash:v1
+sudo docker run -d  \
+	   --name logspout-$(hostname) \
+	--volume=/var/run/docker.sock:/var/run/docker.sock \
+	    --restart=unless-stopped \
+	gliderlabs/logspout \
+	raw://${ELK_IP}:5000?filter.name=*aqua*
+
 echo "step end: logspout"
 
 cd /home/$(whoami)/scripts
@@ -93,7 +95,7 @@ docker run --rm -e SILENT=yes \
 -e AQUA_LOGICAL_NAME="scale-enforcer-$(hostname)" \
 -e RESTART_CONTAINERS="no" \
 -v /var/run/docker.sock:/var/run/docker.sock \
-$AQUA_REPO/agent:$AQUA_VERSION
+automation.azurecr.io/$AQUA_REPO/agent:$AQUA_VERSION
 echo "step end: aqua agent"
 
 #Load agents
