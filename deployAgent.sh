@@ -6,7 +6,7 @@ INSTALLDOCKER="${2:-no}"
 SERVER_IP="${3:-10.0.0.4}"
 DOCKER_PASS=$4
 DOCKER_USER=$5
-AQUA_REPO="${6:-aquadev}"
+AQUA_REPO="${6:-aquadev/agent}"
 AQUA_VERSION="${7:-master}"
 ELK_IP="${8:-51.144.47.61}"
 echo "step end: globals"
@@ -63,7 +63,7 @@ echo "step start: validations"
 echo "SERVER_IP: $SERVER_IP" >> /home/ubuntu/scripts/logs/extension.log
 echo "AQUA_REPO: $AQUA_REPO" >> /home/ubuntu/scripts/logs/extension.log
 echo "AQUA_VERSION: $AQUA_VERSION" >> /home/ubuntu/scripts/logs/extension.log
-BABA=$(echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin docker.io)
+BABA=$(echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin automation.azurecr.io)
 echo "step end: validations"
 
 
