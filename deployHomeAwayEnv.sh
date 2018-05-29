@@ -72,7 +72,7 @@ echo "step start:Deploying Aqua server version: $AQUA_REG/$AQUA_VER "
     -e ADMIN_PASSWORD=${AQUA_ADMIN_PASSWORD} \
     -e SCALOCK_AUDIT_DBHOST=$AQUA_DB_SERVER \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    $AQUA_REGISTRY/server:$AQUA_VERSION
+    automation.azurecr.io/$AQUA_REGISTRY/server:$AQUA_VERSION
     
     echo "step start: monitoring server logs to validate startup"
     ( docker logs aqua-web -f & ) | grep -q "http server started"
@@ -91,7 +91,7 @@ elif [ $HOST_VM == "vm1" ];then
     -e SCALOCK_AUDIT_DBPASSWORD=${AQUA_DB_PASSWORD} \
     -e SCALOCK_AUDIT_DBNAME=slk_audit \
     -e SCALOCK_AUDIT_DBHOST=$AQUA_DB_SERVER \
-    $AQUA_REGISTRY/gateway:$AQUA_VERSION
+    automation.azurecr.io/$AQUA_REGISTRY/gateway:$AQUA_VERSION
 elif [ $HOST_VM == "vm2" ];then
     sudo mkdir -p /etc/prometheus
     sudo chown -R $(whoami):$(whoami) /etc/prometheus
