@@ -9,7 +9,7 @@ NO_OF_SCANNERS="${6:-2}"
 AQUA_ADMIN_PASSWORD=${7}
 
 cd /home/${whoami}/scripts
-BABA=$(echo $DOCKER_HUB_REGISTRY_PASSWORD | docker login -u $DOCKER_HUB_REGISTRY_USER --password-stdin automation.azurecr.io)
+docker login -u ${DOCKER_HUB_REGISTRY_USER} -p ${DOCKER_HUB_REGISTRY_PASSWORD} automation.azurecr.io
 
 echo "step start: validate input parameters"
 if [ $# -lt 7 ];then
