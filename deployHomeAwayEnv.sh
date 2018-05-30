@@ -18,7 +18,7 @@ DASHBOARD_NAME="Aqua Monitor - ${AQUA_REGISTRY}/${AQUA_VERSION}"
 
 cd /home/$(whoami)/scripts
 #login to private registry
-echo $DOCKER_HUB_REGISTRY_PASSWORD | docker login -u $DOCKER_HUB_REGISTRY_USER --password-stdin docker.io
+docker login -u $DOCKER_HUB_REGISTRY_USER -p $DOCKER_HUB_REGISTRY_PASSWORD automation.azurecr.io
 
 echo "step start: validate input parameters"
 if [ $# -lt 10 ];then
