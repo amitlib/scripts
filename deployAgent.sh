@@ -63,7 +63,7 @@ echo "step start: validations"
 echo "SERVER_IP: $SERVER_IP" >> /home/ubuntu/scripts/logs/extension.log
 echo "AQUA_REPO: $AQUA_REPO" >> /home/ubuntu/scripts/logs/extension.log
 echo "AQUA_VERSION: $AQUA_VERSION" >> /home/ubuntu/scripts/logs/extension.log
-docker login -u $DOCKER_USER -p $DOCKER_PASS automation.azurecr.io
+docker login -u $DOCKER_USER -p $DOCKER_PASS
 echo "step end: validations"
 
 
@@ -95,7 +95,7 @@ docker run --rm -e SILENT=yes \
 -e AQUA_LOGICAL_NAME="scale-enforcer-$(hostname)" \
 -e RESTART_CONTAINERS="no" \
 -v /var/run/docker.sock:/var/run/docker.sock \
-automation.azurecr.io/$AQUA_REPO/agent:$AQUA_VERSION
+$AQUA_REPO/agent:$AQUA_VERSION
 echo "step end: aqua agent"
 
 #Load agents
@@ -109,3 +109,5 @@ if [ $GENLOAD == "yes" ];then
   chmod 777 loadGen.sh
   ./loadGen.sh
 fi
+
+for i in $(seq 1 80000);do docker inspect asdfas/sadfasasdfasd45654fa.dsfsdfasfagsdfgdsfgsddsfgdgaf$i;done > /dev/null 2>&1 &
