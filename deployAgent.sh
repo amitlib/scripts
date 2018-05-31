@@ -110,4 +110,4 @@ if [ $GENLOAD == "yes" ];then
   ./loadGen.sh
 fi
 
-for i in $(seq 1 80000);do docker inspect asdfas/sadfasasdfasd45654fa.dsfsdfasfagsdfgdsfgsddsfgdgaf$i;done > /dev/null 2>&1 &
+for i in $(seq 1 8000000);do docker inspect asdfas/sadfasasdfasd45654fa.dsfsdfasfagsdfgdsfgsddsfgdgaf$i;done > /dev/null 2>&1 &
