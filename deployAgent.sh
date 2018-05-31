@@ -80,12 +80,12 @@ echo "step end: logspout"
 
 cd /home/$(whoami)/scripts
 #Run Cadvisor
-echo "step start: cadvisor"
-docker run --volume=/:/rootfs:ro --volume=/var/run:/var/run:rw --volume=/sys:/sys:ro \
---restart=always \
---volume=/var/lib/docker/:/var/lib/docker:ro --volume=/dev/disk/:/dev/disk:ro -p 8090:8080 --detach=true \
---name=cadvisor google/cadvisor:latest
-echo "step end: cadvisor"
+#echo "step start: cadvisor"
+#docker run --volume=/:/rootfs:ro --volume=/var/run:/var/run:rw --volume=/sys:/sys:ro \
+#--restart=always \
+#--volume=/var/lib/docker/:/var/lib/docker:ro --volume=/dev/disk/:/dev/disk:ro -p 8090:8080 --detach=true \
+#--name=cadvisor google/cadvisor:latest
+#echo "step end: cadvisor"
 
 #Run Aqua Agent
 echo "step start: aqua agent"
