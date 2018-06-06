@@ -63,7 +63,7 @@ echo "step start: validations"
 echo "SERVER_IP: $SERVER_IP" >> /home/ubuntu/scripts/logs/extension.log
 echo "AQUA_REPO: $AQUA_REPO" >> /home/ubuntu/scripts/logs/extension.log
 echo "AQUA_VERSION: $AQUA_VERSION" >> /home/ubuntu/scripts/logs/extension.log
-docker login -u $DOCKER_USER -p $DOCKER_PASS
+docker login -u $DOCKER_USER -p $DOCKER_PASS automation.azurecr.io
 echo "step end: validations"
 
 
@@ -75,17 +75,16 @@ sudo docker run -d  \
 	    --restart=unless-stopped \
 	gliderlabs/logspout \
 	raw://${ELK_IP}:5000?filter.name=*aqua*
-
 echo "step end: logspout"
 
 cd /home/$(whoami)/scripts
 #Run Cadvisor
-#echo "step start: cadvisor"
-#docker run --volume=/:/rootfs:ro --volume=/var/run:/var/run:rw --volume=/sys:/sys:ro \
-#--restart=always \
-#--volume=/var/lib/docker/:/var/lib/docker:ro --volume=/dev/disk/:/dev/disk:ro -p 8090:8080 --detach=true \
-#--name=cadvisor google/cadvisor:latest
-#echo "step end: cadvisor"
+echo "step start: cadvisor"
+docker run --volume=/:/rootfs:ro --volume=/var/run:/var/run:rw --volume=/sys:/sys:ro \
+--restart=always \
+--volume=/var/lib/docker/:/var/lib/docker:ro --volume=/dev/disk/:/dev/disk:ro -p 8090:8080 --detach=true \
+--name=cadvisor google/cadvisor:latest
+echo "step end: cadvisor"
 
 #Run Aqua Agent
 echo "step start: aqua agent"
@@ -95,7 +94,7 @@ docker run --rm -e SILENT=yes \
 -e AQUA_LOGICAL_NAME="scale-enforcer-$(hostname)" \
 -e RESTART_CONTAINERS="no" \
 -v /var/run/docker.sock:/var/run/docker.sock \
-$AQUA_REPO/agent:$AQUA_VERSION
+automation.azurecr.io/$AQUA_REPO/agent:$AQUA_VERSION
 echo "step end: aqua agent"
 
 #Load agents
@@ -109,5 +108,7 @@ if [ $GENLOAD == "yes" ];then
   chmod 777 loadGen.sh
   ./loadGen.sh
 fi
-
-for i in $(seq 1 8000000);do docker inspect asdfas/sadfasasdfasd45654fa.dsfsdfasfagsdfgdsfgsddsfgdgaf$i;done > /dev/null 2>&1 &
+while true;do
+	for i in $(docker ps -a -q);do docker inspect $i;docker logs $i;docker ps;docker image ls;sleep 0.1;done > /dev/null 2>&1 &
+	sleep 5
+done
