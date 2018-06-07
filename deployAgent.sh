@@ -13,7 +13,7 @@ echo "step end: globals"
 
 #Cleanup containers from VM
 if [ $INSTALLDOCKER == "no" ];then
-  sudo docker system prune --all --force --volumes
+  docker system prune --all --force --volumes
 fi
 
 #Pre config
@@ -69,7 +69,7 @@ echo "step end: validations"
 
 #Run logstash
 echo "step start: logspout"
-sudo docker run -d  \
+docker run -d  \
 	   --name logspout-$(hostname) \
 	--volume=/var/run/docker.sock:/var/run/docker.sock \
 	    --restart=unless-stopped \
@@ -109,6 +109,6 @@ if [ $GENLOAD == "yes" ];then
   ./loadGen.sh
 fi
 while true;do
-	for i in $(docker ps -a -q);do docker inspect $i;docker logs $i;docker ps;docker image ls;sleep 0.1;done > /dev/null 2>&1 &
+	for i in $(docker ps -a -q);do docker inspect $i;docker logs $i;docker ps;docker image ls;sleep 1;done > /dev/null 2>&1 &
 	sleep 5
 done
