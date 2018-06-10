@@ -9,6 +9,7 @@ DOCKER_USER=$5
 AQUA_REPO="${6:-aquadev}"
 AQUA_VERSION="${7:-master}"
 ELK_IP="${8}"
+ENFORCER_MODE="${9:-service}"
 echo "step end: globals"
 
 #Cleanup containers from VM
@@ -86,16 +87,38 @@ docker run --volume=/:/rootfs:ro --volume=/var/run:/var/run:rw --volume=/sys:/sy
 --name=cadvisor google/cadvisor:latest
 echo "step end: cadvisor"
 
-#Run Aqua Agent
-echo "step start: aqua agent"
-docker run --rm -e SILENT=yes \
--e AQUA_TOKEN=agent-scale-token \
--e AQUA_SERVER=${SERVER_IP}:3622 \
--e AQUA_LOGICAL_NAME="scale-enforcer-$(hostname)" \
--e RESTART_CONTAINERS="no" \
--v /var/run/docker.sock:/var/run/docker.sock \
-automation.azurecr.io/$AQUA_REPO/agent:$AQUA_VERSION
-echo "step end: aqua agent"
+if [ $ENFORCER_MODE == "service" ];then
+	#Run Aqua Agent service mode
+	echo "step start: aqua agent service mode"
+	docker run -d \
+	--name aqua-agent \
+	--restart=always --privileged \
+	--pid=host \
+	-v /var/run:/var/run -v /dev:/dev \
+	-v /opt/aquasec:/host/opt/aquasec:ro \
+	-v /opt/aquasec/tmp:/opt/aquasec/tmp \
+	-v /opt/aquasec/audit:/opt/aquasec/audit \
+	-v /proc:/host/proc:ro -v /sys:/host/sys:ro \
+	-v /etc:/host/etc:ro \
+	-e SILENT=yes \
+	-e AQUA_SERVER=${SERVER_IP}:3622 \
+	-e AQUA_TOKEN=agent-scale-token \
+	-e AQUA_LOGICAL_NAME="scale-enforcer-$(hostname)" \
+	-e RESTART_CONTAINERS="no" \
+	automation.azurecr.io/$AQUA_REPO/agent:$AQUA_VERSION
+	echo "step end: aqua agent service mode"
+else
+	#Run Aqua Agent contaiener mode
+	echo "step start: aqua agent container mode"
+	docker run --rm -e SILENT=yes \
+	-e AQUA_TOKEN=agent-scale-token \
+	-e AQUA_SERVER=${SERVER_IP}:3622 \
+	-e AQUA_LOGICAL_NAME="scale-enforcer-$(hostname)" \
+	-e RESTART_CONTAINERS="no" \
+	-v /var/run/docker.sock:/var/run/docker.sock \
+	automation.azurecr.io/$AQUA_REPO/agent:$AQUA_VERSION
+	echo "step end: aqua agent container mode"
+fi
 
 #Load agents
 if [ $GENLOAD == "yes" ];then
@@ -108,7 +131,3 @@ if [ $GENLOAD == "yes" ];then
   chmod 777 loadGen.sh
   ./loadGen.sh
 fi
-while true;do
-	for i in $(docker ps -a -q);do docker inspect $i;docker logs $i;docker ps;docker image ls;sleep 1;done > /dev/null 2>&1 &
-	sleep 5
-done
