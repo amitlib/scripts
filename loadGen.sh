@@ -16,3 +16,22 @@ for i in ${container_array[@]};do
     lFlag=$(($lFlag+1))
 done
 echo "step end: run mix "
+
+echo "step start:run commands"
+
+while true;do
+	for i in $(sudo docker ps -a -q);do 
+        sudo docker inspect $i
+        docker logs $i
+        docker ps
+        docker image ls
+        sleep 1
+    done
+    for i in $(sudo docker ps | awk '!/agent/ && !/cadvisor/ && !/logspout/  {print $1}');do
+        docker stop $i
+        sleep 45
+        docker start $i
+    done
+done
+echo "step end:run commands"
+
