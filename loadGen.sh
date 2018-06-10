@@ -27,7 +27,7 @@ while true;do
         docker image ls
         sleep 1
     done
-    for i in $(sudo docker ps | awk '!/agent/ && !/cadvisor/ && !/logspout/  {print $1}');do
+    for i in $(sudo docker ps | awk '!/agent/ && !/cadvisor/ && !/logspout/ {print $1}');do
         docker stop $i
         sleep 45
         docker start $i
