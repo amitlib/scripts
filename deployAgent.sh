@@ -12,6 +12,16 @@ ELK_IP="${8}"
 ENFORCER_MODE="${9:-service}"
 echo "step end: globals"
 
+#params
+echo ""
+echo "GENLOAD: $GENLOAD"
+echo "INSTALLDOCKER: $INSTALLDOCKER"
+echo "DOCKER_USER: $DOCKER_USER"
+echo "AQUA_REPO: $AQUA_REPO"
+echo "AQUA_VERSION: $AQUA_VERSION"
+echo "ENFORCER_MODE: $ENFORCER_MODE"
+
+
 #Cleanup containers from VM
 if [ $INSTALLDOCKER == "no" ];then
   docker system prune --all --force --volumes
