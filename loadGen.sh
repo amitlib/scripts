@@ -22,15 +22,15 @@ echo "step start:run commands"
 while true;do
 	for i in $(sudo docker ps -a -q);do 
         sudo docker inspect $i
-        docker logs $i
-        docker ps
+        sudo docker logs $i
+        sudo docker ps
         docker image ls
         sleep 1
     done
     for i in $(sudo docker ps | awk '!/agent/ && !/cadvisor/ && !/logspout/ && !/CONTAINER/ {print $1}');do
-        docker stop $i
+        sudo docker stop $i
         sleep 45
-        docker start $i
+        sudo docker start $i
     done
 done
 echo "step end:run commands"
