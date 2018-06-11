@@ -5,6 +5,7 @@ docker run -d --name=grafana -p 3000:3000 grafana/grafana
 docker run --name postgres -e POSTGRES_PASSWORD=postgres -d postgres
 docker run -d --hostname $(hostname)-rabbit --name $(hostname)-rabbit rabbitmq:3
 docker run --name gcc -d -it gcc
+docker run -d -p 5000:5000 --restart=always --name registry registry:2
 echo "step end: run base containers"
 
 echo "step start: run mix "
@@ -28,11 +29,15 @@ while true;do
         docker image ls
         sleep 1
     done
-    for i in $(sudo docker ps | awk '!/agent/ && !/cadvisor/ && !/logspout/ && !/CONTAINER/ {print $1}');do
-        sudo docker stop $i
-        sleep 45
+    for a in $(sudo docker ps -a | awk '!/agent/ && !/cadvisor/ && !/logspout/ && !/CONTAINER/ && !/registry/ {print $1}');do
+        sudo docker stop $a
+    done
+    sleep 20
+    for i in $(sudo docker ps | awk '!/agent/ && !/cadvisor/ && !/logspout/ && !/CONTAINER/ && !/registry/ {print $1}');do
         sudo docker start $i
     done
+    sleep 20
+    
 done
 echo "step end:run commands"
 
