@@ -22,21 +22,21 @@ echo "step end: run mix "
 echo "step start:run commands"
 
 while true;do
-	for i in $(sudo docker ps -a -q);do 
+    for i in $(sudo docker ps -a -q);do 
         sudo docker inspect $i
         sudo docker logs $i
         sudo docker ps
         docker image ls
         sleep 1
     done
-    for a in $(sudo docker ps -a | awk '!/agent/ && !/cadvisor/ && !/logspout/ && !/CONTAINER/ && !/registry/ {print $1}');do
+    for a in $(sudo docker ps | awk '!/agent/ && !/cadvisor/ && !/logspout/ && !/CONTAINER/ && !/registry/ {print $1}');do
         sudo docker stop $a
     done
-    sleep 20
-    for i in $(sudo docker ps | awk '!/agent/ && !/cadvisor/ && !/logspout/ && !/CONTAINER/ && !/registry/ {print $1}');do
+    sleep 30
+    for i in $(sudo docker ps -a | awk '!/agent/ && !/cadvisor/ && !/logspout/ && !/CONTAINER/ && !/registry/ {print $1}');do
         sudo docker start $i
     done
-    sleep 20
+    sleep 30
     
 done
 echo "step end:run commands"
