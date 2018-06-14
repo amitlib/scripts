@@ -20,6 +20,10 @@ else
 fi
 echo "step end: validate input parameters"
 
+docker run --volume=/:/rootfs:ro --volume=/var/run:/var/run:rw --volume=/sys:/sys:ro \
+--volume=/var/lib/docker/:/var/lib/docker:ro --volume=/dev/disk/:/dev/disk:ro -p 8090:8080 --detach=true \
+--name=cadvisor google/cadvisor:latest
+
 
 for i in $(seq 1 $NO_OF_SCANNERS);do 
 docker run --name scanner${i}-$(hostname | awk -F'-' ' { print $NF } ') -d \
