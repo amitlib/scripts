@@ -10,7 +10,7 @@ AQUA_ADMIN_PASSWORD=${7}
 CONTAINER_REGISTRY="${8:-docker.io}"
 
 cd /home/${whoami}/scripts
-docker login -u ${DOCKER_HUB_REGISTRY_USER} -p ${DOCKER_HUB_REGISTRY_PASSWORD} $CONTAINER_REGISTRY
+echo ${DOCKER_HUB_REGISTRY_PASSWORD} | docker login -u ${DOCKER_HUB_REGISTRY_USER} --password-stdin $CONTAINER_REGISTRY
 
 echo "step start: validate input parameters"
 if [ $# -lt 7 ];then
