@@ -18,7 +18,7 @@ DASHBOARD_NAME="Aqua Monitor - ${AQUA_REGISTRY}/${AQUA_VERSION}"
 
 cd /home/$(whoami)/scripts
 #login to private registry
-docker login -u $DOCKER_HUB_REGISTRY_USER -p $DOCKER_HUB_REGISTRY_PASSWORD automation.azurecr.io
+docker login -u $DOCKER_HUB_REGISTRY_USER -p $DOCKER_HUB_REGISTRY_PASSWORD
 
 echo "step start: validate input parameters"
 if [ $# -lt 10 ];then
@@ -72,7 +72,7 @@ echo "step start:Deploying Aqua server version: $AQUA_REG/$AQUA_VER "
     -e ADMIN_PASSWORD=${AQUA_ADMIN_PASSWORD} \
     -e SCALOCK_AUDIT_DBHOST=$AQUA_DB_SERVER \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    automation.azurecr.io/$AQUA_REGISTRY/server:$AQUA_VERSION
+    $AQUA_REGISTRY/server:$AQUA_VERSION
     
     echo "step start: monitoring server logs to validate startup"
     ( docker logs aqua-web -f & ) | grep -q "http server started"
@@ -92,7 +92,7 @@ elif [ $HOST_VM == "vm1" ];then
     -e SCALOCK_AUDIT_DBPASSWORD=${AQUA_DB_PASSWORD} \
     -e SCALOCK_AUDIT_DBNAME=slk_audit \
     -e SCALOCK_AUDIT_DBHOST=$AQUA_DB_SERVER \
-    automation.azurecr.io/$AQUA_REGISTRY/gateway:$AQUA_VERSION
+    $AQUA_REGISTRY/gateway:$AQUA_VERSION
 elif [ $HOST_VM == "vm2" ];then
     sudo mkdir -p /etc/prometheus
     sudo chown -R $(whoami):$(whoami) /etc/prometheus
