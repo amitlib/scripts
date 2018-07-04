@@ -7,9 +7,10 @@ DOCKER_HUB_REGISTRY_USER=${4}
 DOCKER_HUB_REGISTRY_PASSWORD=${5}
 NO_OF_SCANNERS="${6:-2}"
 AQUA_ADMIN_PASSWORD=${7}
+CONTAINER_REGISTRY="${8:-docker.io}"
 
 cd /home/${whoami}/scripts
-docker login -u ${DOCKER_HUB_REGISTRY_USER} -p ${DOCKER_HUB_REGISTRY_PASSWORD} automation.azurecr.io
+docker login -u ${DOCKER_HUB_REGISTRY_USER} -p ${DOCKER_HUB_REGISTRY_PASSWORD} $CONTAINER_REGISTRY
 
 echo "step start: validate input parameters"
 if [ $# -lt 7 ];then
@@ -28,6 +29,6 @@ docker run --volume=/:/rootfs:ro --volume=/var/run:/var/run:rw --volume=/sys:/sy
 for i in $(seq 1 $NO_OF_SCANNERS);do 
 docker run --name scanner${i}-$(hostname | awk -F'-' ' { print $NF } ') -d \
 -v /var/run/docker.sock:/var/run/docker.sock \
-automation.azurecr.io/${AQUA_REGISTRY}/scanner-cli:${AQUA_VERSION} daemon \
+$CONTAINER_REGISTRY/${AQUA_REGISTRY}/scanner-cli:${AQUA_VERSION} daemon \
 --direct-cc --user administrator --password $AQUA_ADMIN_PASSWORD --host $AQUA_SERVER_IP 
 done
