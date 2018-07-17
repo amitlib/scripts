@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 
 #Globals
 echo "step start: globals"
