@@ -74,6 +74,11 @@ docker run -d -p 5432:5432 -p 3622:3622 -p 8080:8080 \
    -e SCALOCK_DBNAME=scalock \
    -e SCALOCK_DBHOST=$(hostname -i) \
    -e SCALOCK_AUDIT_DBUSER=postgres \
+   -e SCALOCK_GATEWAY_NAME=sfgateway \
+   -e BATCH_INSTALL_NAME=sf-batch-install \
+   -e BATCH_INSTALL_TOKEN=sf-batch-token \
+   -e BATCH_INSTALL_ENFORCE_MODE=y \
+   -e BATCH_INSTALL_GATEWAY=sfgateway \
    -e SCALOCK_AUDIT_DBPASSWORD=${AQUA_ADMIN_PASSWORD} \
    -e SCALOCK_AUDIT_DBNAME=slk_audit \
    -e SCALOCK_AUDIT_DBHOST=$(hostname -i) \
