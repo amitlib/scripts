@@ -5,7 +5,7 @@
 
 Param (
      [string]$AQUA_SERVER,
-     [string]$AQUA_TOKEN
+     [string]$AQUA_VERSION
 )
 $global:LogFilePath = 'C:\temp\PSLogFile.log'
 
@@ -31,7 +31,7 @@ function Write-Log
 }
 
 # Manual input param for testing
-$AQUA_SERVER = "52.136.245.19:3622"
+$AQUA_SERVER = "104.214.225.88:3622"
 $AQUA_TOKEN = "agent-scale-token"
 
 Write-Log "First log entry for this run"
@@ -39,7 +39,7 @@ Write-Log "Delaying kickoff 60 sec to run after other agent installers"
 
 
 function downloadFiles(){
-       $urlAgent = "https://get.aquasec.com/892782101/AquaAgentWindowsInstaller.3.0.5.16629.msi"
+       $urlAgent = "https://get.aquasec.com/892782101/$AQUA_VERSION"
        $agentOut = "c:\temp\AquaAgentWindowsSFInstaller.msi"
 
     if (!(Test-Path c:\temp)) {New-Item -ItemType Directory c:\temp};
