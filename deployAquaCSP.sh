@@ -2,7 +2,7 @@
 
 #Globals
 echo "step start: globals"
-ADMIN_USER=$(whoami)
+ADMIN_USER=ubuntu
 DOCKER_USER=$1
 DOCKER_PASS=$2
 DOCKER_REGISTRY=$3
@@ -16,6 +16,7 @@ echo "step end: globals"
 echo "step start: arguments"
 echo "ADMIN_USER: $ADMIN_USER"
 echo "DOCKER_USER: $DOCKER_USER"
+echo "DOCKER_REGISTRY: $DOCKER_REGISTRY"
 echo "AQUA_VERSION: $AQUA_VERSION"
 echo "AQUA_ADMIN_PASSWORD: $AQUA_ADMIN_PASSWORD"
 echo "INSTALL_DOCKER: $INSTALL_DOCKER"
