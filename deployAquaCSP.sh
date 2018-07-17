@@ -15,6 +15,8 @@ echo "step end: globals"
 
 echo "step start: arguments"
 echo "ADMIN_USER: $ADMIN_USER"
+echo "DOCKER_USER: $DOCKER_USER"
+echo "AQUA_VERSION: $AQUA_VERSION"
 echo "AQUA_ADMIN_PASSWORD: $AQUA_ADMIN_PASSWORD"
 echo "INSTALL_DOCKER: $INSTALL_DOCKER"
 echo "step end: arguments"
