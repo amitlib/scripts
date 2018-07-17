@@ -81,9 +81,9 @@ docker run -d -p 5432:5432 -p 3622:3622 -p 8080:8080 \
  
  lExitCode=$?
 if [ $lExitCode == "0" ];then
-  echo "Sucessfully ran $AQUA_IMAGE"
+  echo "Sucessfully ran  $DOCKER_REGISTRY/$AQUA_REPO/csp:$AQUA_VERSION"
 else
-  echo "Failed to run $AQUA_IMAGE, exit code : $lExitCode , exiting"
+  echo "Failed to run  $DOCKER_REGISTRY/$AQUA_REPO/csp:$AQUA_VERSION, exit code : $lExitCode , exiting"
   exit 1
 fi
 echo "step start: deploy Aqua CSP"
