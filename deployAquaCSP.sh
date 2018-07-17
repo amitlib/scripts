@@ -11,52 +11,42 @@ AQUA_CONTAINER_NAME=$6
 AQUA_DB_PASSWORD=$7
 AQUA_LICENSE_TOKEN=$8
 AQUA_ADMIN_PASSWORD=$9
+INSTALL_DOCKER=${10}
 echo "step end: globals"
 
-echo "step start: variables"
-echo "ADMIN_USER: $ADMIN_USER"
-echo "SSH_KEY: $SSH_KEY"
-echo "DOCKER_USER: $DOCKER_USER"
-echo "DOCKER_PASS: $DOCKER_PASS"
-echo "DOCKER_REGISTRY: $DOCKER_REGISTRY"
-echo "AQUA_IMAGE: $AQUA_IMAGE"
-echo "AQUA_CONTAINER_NAME: $AQUA_CONTAINER_NAME"
-echo "AQUA_DB_PASSWORD: $AQUA_DB_PASSWORD"
-echo "AQUA_LICENSE_TOKEN: $AQUA_LICENSE_TOKEN"
-echo "AQUA_ADMIN_PASSWORD: $AQUA_ADMIN_PASSWORD"
-echo "SHELL: $SHELL"
-echo "step end: variables"
 
 
-echo "step start: install docker-ce"
-sudo apt-get update
-sudo apt-get install \
-    apt-transport-https \
-    ca-certificates \
-    curl \
-    software-properties-common
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-sudo apt-key fingerprint 0EBFCD88
-sudo add-apt-repository \
-   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
-   $(lsb_release -cs) \
-   stable"
-sudo apt-get update
-sudo apt-get install -y docker-ce
-sudo groupadd docker
-sudo usermod -aG docker $ADMIN_USER
-sudo systemctl start docker
-sudo systemctl enable docker
-sleep 10
-docker version
-lExitCode=$?
-if [ $lExitCode == "0" ];then
-  echo "Docker installed successfully"
-else
-  echo "Failed to install docker, exit code : $lExitCode, exiting"
-  exit 1
+if [ $INSTALL_DOCKER == "yes" ];then
+    echo "step start: install docker-ce"
+    sudo apt-get update
+    sudo apt-get install \
+        apt-transport-https \
+        ca-certificates \
+        curl \
+        software-properties-common
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+    sudo apt-key fingerprint 0EBFCD88
+    sudo add-apt-repository \
+       "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+       $(lsb_release -cs) \
+       stable"
+    sudo apt-get update
+    sudo apt-get install -y docker-ce
+    sudo groupadd docker
+    sudo usermod -aG docker $ADMIN_USER
+    sudo systemctl start docker
+    sudo systemctl enable docker
+    sleep 10
+    docker version
+    lExitCode=$?
+    if [ $lExitCode == "0" ];then
+      echo "Docker installed successfully"
+    else
+      echo "Failed to install docker, exit code : $lExitCode, exiting"
+      exit 1
+    fi
+    echo "step end: install docker-ce"
 fi
-echo "step end: install docker-ce"
 
 #Docker login
 echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin $DOCKER_REGISTRY
