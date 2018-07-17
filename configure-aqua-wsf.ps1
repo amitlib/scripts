@@ -31,8 +31,8 @@ function Write-Log
 }
 
 # Manual input param for testing
-$AQUA_SERVER = "104.214.225.88:3622"
-$AQUA_TOKEN = "agent-scale-token"
+#$AQUA_SERVER = "104.214.225.88:3622"
+#$AQUA_TOKEN = "agent-scale-token"
 
 Write-Log "First log entry for this run"
 Write-Log "Delaying kickoff 60 sec to run after other agent installers"
