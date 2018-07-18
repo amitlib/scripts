@@ -35,7 +35,8 @@ function Write-Log
 #$AQUA_TOKEN = agent-scale-token
 $AQUA_TOKEN="sf-batch-token"
 Write-Log "First log entry for this run"
-Write-Log "Delaying kickoff 60 sec to run after other agent installers"
+Write-Log "Delaying kickoff 120 sec to run after other agent installers"
+Start-Sleep -s 60
 
 
 function downloadFiles(){
@@ -44,10 +45,16 @@ function downloadFiles(){
 
     if (!(Test-Path ctemp)) {New-Item -ItemType Directory ctemp};
     (New-Object System.Net.WebClient).DownloadFile($urlAgent, $agentOut);
+    Start-Sleep -s 30
+    if (Test-Path C:\temp\AquaAgentWindowsSFInstaller.msi) {Write-Host "File Exists"} 
+    else {Write-Host "File does not Exists"};
     Write-Log "Function downloadFiles complete"
     }
-
+# Run the function that pulls the files
+Write-Log "Calling downloadFiles function, first pass"
 downloadFiles
+
+#verify if file exists
 # Install enforcer componant
 Write-Log "Aqua server is set to $AQUA_SERVER"
 Write-Log "Aqua AQUA_VERSION is set to $AQUA_VERSION"
