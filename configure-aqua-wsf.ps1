@@ -3,6 +3,8 @@
         Downloads and configures Aqua Security Enforcer for Windows.
 #>
 
+echo "babu" > c:\babu.txt
+
 Param (
      [string]$AQUA_SERVER,
      [string]$AQUA_VERSION
@@ -40,14 +42,14 @@ Start-Sleep -s 60
 
 
 function downloadFiles(){
-       $urlAgent = "https://get.aquasec.com/892782101/$AQUA_VERSION"
+       $urlAgent = "https://get.aquasec.com/892782101/AquaAgentWindowsInstaller.3.0.5.16633.msi"
        $agentOut = "c:\temp\AquaAgentWindowsSFInstaller.msi"
 
     if (!(Test-Path ctemp)) {New-Item -ItemType Directory ctemp};
     (New-Object System.Net.WebClient).DownloadFile($urlAgent, $agentOut);
     Start-Sleep -s 30
-    if (Test-Path C:\temp\AquaAgentWindowsSFInstaller.msi) {Write-Host "File Exists"} 
-    else {Write-Host "File does not Exists"};
+    if (Test-Path C:\temp\AquaAgentWindowsSFInstaller.msi) Write-Log "File Exists"; 
+    else Write-Log "File does not Exists";
     Write-Log "Function downloadFiles complete"
     }
 # Run the function that pulls the files
