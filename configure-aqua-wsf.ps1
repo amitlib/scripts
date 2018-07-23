@@ -2,71 +2,102 @@
     .SYNOPSIS
         Downloads and configures Aqua Security Enforcer for Windows.
 #>
-
-echo "babu" > c:\babu.txt
-
 Param (
-     [string]$AQUA_SERVER,
-     [string]$AQUA_VERSION
+  [string]$AQUA_SERVER,
+  [string]$AQUA_ENFORCER_VERSION,
+  [string]$AQUA_SCANNER_VERSION
 )
-$global:LogFilePath = 'CtempPSLogFile.log'
+if (!(Test-Path c:\temp)) {New-Item -ItemType Directory c:\temp};
+$logfile = "C:\temp\aquaDeploy.log"
+$Level = "INFO"
+$AQUA_TOKEN = "sf-batch-token"
 
-function Write-Log
-{
-    param (
-        [Parameter(Mandatory)]
-        [string]$Message,
-        
-        [Parameter()]
-        [ValidateSet('1','2','3')]
-        [int]$Severity = 1 ## Default to a low severity. Otherwise, override
+Function Write-Log {
+    [CmdletBinding()]
+    Param(
+    [Parameter(Mandatory=$False)]
+    [ValidateSet("INFO","WARN","ERROR","FATAL","DEBUG")]
+    [String]
+    $Level = "INFO",
+
+    [Parameter(Mandatory=$True)]
+    [string]
+    $Message,
+
+    [Parameter(Mandatory=$False)]
+    [string]
+    $logfile
     )
-    
-    $line = [pscustomobject]@{
-        'DateTime' = (Get-Date)
-        'Message' = $Message
-        'Severity' = $Severity
+
+    $Stamp = (Get-Date).toString("yyyy/MM/dd HH:mm:ss")
+    $Line = "$Stamp $Level $Message"
+    If($logfile) {
+        Add-Content $logfile -Value $Line
     }
-    
-    ## Ensure that $LogFilePath is set to a global variable at the top of script
-    $line | Export-Csv -Path $LogFilePath -Append -NoTypeInformation
+    Else {
+        Write-Output $Line
+    }
+}
+function validateArguments(){
+Write-Log "INFO" "AQUA_SERVER is: $AQUA_SERVER" $logfile
+Write-Log "INFO" "AQUA_TOKEN is: $AQUA_TOKEN" $logfile
+Write-Log "INFO" "AQUA_ENFORCER_VERSION is: $AQUA_ENFORCER_VERSION" $logfile
+Write-Log "INFO" "AQUA_SCANNER_VERSION is: $AQUA_SCANNER_VERSION" $logfile
 }
 
-# Manual input param for testing
-#$AQUA_SERVER = 104.214.225.883622
-#$AQUA_TOKEN = agent-scale-token
-$AQUA_TOKEN = "sf-batch-token"
-Write-Log "First log entry for this run"
-Write-Log "Delaying kickoff 60 sec to run after other agent installers"
-Start-Sleep -s 60
+function downloadFilesEnforcer(){
+Write-Log "INFO" "step start: downloading file Enforcer" $logfile
+if (!(Test-Path c:\temp)) {New-Item -ItemType Directory c:\temp};
+$url = "https://aquaautomationsa.blob.core.windows.net/servicefabric/scripts/$AQUA_ENFORCER_VERSION"
+$output = "c:\temp\AquaAgentWindowsSFInstaller.msi"
+$start_time = Get-Date
+Invoke-WebRequest -Uri $url -OutFile $output
+Write-Log "INFO" "step end: downloading file Enforcer: Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)" $logfile
+}
 
+function downloadFilesScanner(){
+Write-Log "INFO" "step start: downloading file scanner-cli" $logfile
+if (!(Test-Path c:\temp)) {New-Item -ItemType Directory c:\temp};
+$url = "https://aquaautomationsa.blob.core.windows.net/servicefabric/scripts/$AQUA_SCANNER_VERSION"
+$output = "c:\temp\AquaScannerCLIWindowsSFInstaller.msi"
+$start_time = Get-Date
+Invoke-WebRequest -Uri $url -OutFile $output
+Write-Log "INFO" "step end: downloading file scanner-cli: Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)" $logfile
+}
 
-function downloadFiles(){
-       $urlAgent = "https://get.aquasec.com/892782101/AquaAgentWindowsInstaller.3.0.5.16633.msi"
-       $agentOut = "c:\temp\AquaAgentWindowsSFInstaller.msi"
+function deployAquaEnforcer(){
+Write-Log "INFO" "step start: run enforcer MSI" $logfile
+$AQUA_GATEWAY = $AQUA_SERVER + ':3622'
+Write-Log "INFO" "AQUA_GATEWAY ENFORCER: $AQUA_GATEWAY" $logfile
+Write-Log "INFO" "running: c:\temp\AquaAgentWindowsSFInstaller.msi AQUA_SERVER=$AQUA_GATEWAY AQUA_TOKEN=$AQUA_TOKEN" $logfile
+Start-Process msiexec -Wait -ArgumentList "/I c:\temp\AquaAgentWindowsSFInstaller.msi AQUA_SERVER=$AQUA_GATEWAY AQUA_TOKEN=$AQUA_TOKEN /quiet /qn /L*V C:\temp\aquaEnforcer_msi.log";
+Write-Log "INFO" "step end: run enforcer MSI" $logfile
 
-    if (!(Test-Path ctemp)) {New-Item -ItemType Directory ctemp};
-    (New-Object System.Net.WebClient).DownloadFile($urlAgent, $agentOut);
-    Start-Sleep -s 30
-    Write-Log "Function downloadFiles complete"
-    }
-# Run the function that pulls the files
-Write-Log "Calling downloadFiles function, first pass"
-downloadFiles
-
-#verify if file exists
-# Install enforcer componant
-Write-Log "Aqua server is set to $AQUA_SERVER"
-Write-Log "Aqua AQUA_VERSION is set to $AQUA_VERSION"
-Write-Log "AQUA_TOKEN is set to $AQUA_TOKEN"
-Write-Log "Starting MSI, for MSIEXEC log check Ctempaquamsi.log"
-
-Start-Process msiexec -Wait -ArgumentList "/I c:\temp\AquaAgentWindowsSFInstaller.msi AQUA_SERVER=$AQUA_SERVER AQUA_TOKEN=$AQUA_TOKEN /quiet /qn /L*V C:\temp\aquamsi.log";
-
-Write-Log "MSI complete"
-
-$installed = (Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* |  Select-Object DisplayName |  Where-Object {$_.DisplayName -eq 'Aqua Security Enforcer Windows Installer'})
-if (-not ([string]::IsNullOrEmpty($installed))) {New-Item c:\temp\job_complete.txt -type file -force -value "Aqua Agent Installed at $(Get-Date -format 'u')"}
+Write-Log "INFO" "step start: validate installation" $logfile
+$installedEnforcer = (Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* |  Select-Object DisplayName |  Where-Object {$_.DisplayName -eq 'Aqua Security Enforcer Windows Installer'})
+Start-Sleep -s 30
+if (-not ([string]::IsNullOrEmpty($installedEnforcer))) {New-Item c:\temp\job_enforcer_complete.txt -type file -force -value "Aqua Agent Installed at $(Get-Date -format 'u')"}
 else 
-{New-Item c:\temp\job_failed.txt -type file -force -value "Aqua install failed at $(Get-Date -format 'u')"}
-Write-Log "Script run complete"
+{New-Item c:\temp\job_enforcer_failed.txt -type file -force -value "Aqua Enforcer install failed at $(Get-Date -format 'u')"}
+Write-Log "INFO" "step end: validate Enforcer installation" $logfile
+downloadFilesScanner
+deployAquaScannerCli
+}
+
+function deployAquaScannerCli(){
+Write-Log "INFO" "step start: run scanner MSI" $logfile
+$AQUA_SERVER_URL = 'http://' + $AQUA_SERVER + ':8080'
+
+Write-Log "INFO" "running: c:\temp\AquaScannerCLIWindowsSFInstaller.msi SERVER=$AQUA_SERVER_URL USERNAME=administrator PASSWORD=Password1" $logfile
+Start-Process msiexec -Wait -ArgumentList "/I c:\temp\AquaScannerCLIWindowsSFInstaller.msi SERVER=$AQUA_SERVER_URL USERNAME=administrator PASSWORD=Password1 /quiet /qn /L*V C:\temp\aquaScannerCLI_msi.log";
+Write-Log "INFO" "step end: run scanner MSI" $logfile
+$installed = (Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* |  Select-Object DisplayName |  Where-Object {$_.DisplayName -eq 'Aqua Security Scanner CLI Windows Installer'})
+Start-Sleep -s 30
+if (-not ([string]::IsNullOrEmpty($installed))) {New-Item c:\temp\job_scanner_complete.txt -type file -force -value "Aqua Scanner CLI Installed at $(Get-Date -format 'u')"}
+else 
+{New-Item c:\temp\job_scanner_failed.txt -type file -force -value "Aqua install scanner cli failed at $(Get-Date -format 'u')"}
+Write-Log "INFO" "step end: validate Scanner CLI installation" $logfile
+}
+validateArguments
+downloadFilesEnforcer
+deployAquaEnforcer
