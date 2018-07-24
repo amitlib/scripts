@@ -3,9 +3,13 @@
         Downloads and configures Aqua Security Enforcer for Windows.
 #>
 Param (
+  [string]$USER_NAME,
+  [string]$USER_PASSWORD,
   [string]$AQUA_SERVER,
-  [string]$AQUA_ENFORCER_VERSION,
-  [string]$AQUA_SCANNER_VERSION
+  [string]$WIN_ENFORCER_BRANCH,
+  [string]$WIN_ENFORCER_MSI_TO_INSTALL,
+  [string]$WIN_SCANNER_BRANCH,
+  [string]$WIN_SCANNER_MSI_TO_INSTALL
 )
 if (!(Test-Path c:\temp)) {New-Item -ItemType Directory c:\temp};
 $logfile = "C:\temp\aquaDeploy.log"
@@ -39,29 +43,42 @@ Function Write-Log {
     }
 }
 function validateArguments(){
+Write-Log "INFO" "USER_NAME is: $USER_NAME" $logfile
 Write-Log "INFO" "AQUA_SERVER is: $AQUA_SERVER" $logfile
-Write-Log "INFO" "AQUA_TOKEN is: $AQUA_TOKEN" $logfile
-Write-Log "INFO" "AQUA_ENFORCER_VERSION is: $AQUA_ENFORCER_VERSION" $logfile
-Write-Log "INFO" "AQUA_SCANNER_VERSION is: $AQUA_SCANNER_VERSION" $logfile
+Write-Log "INFO" "WIN_ENFORCER_BRANCH is: $WIN_ENFORCER_BRANCH" $logfile
+Write-Log "INFO" "WIN_ENFORCER_MSI_TO_INSTALL is: $WIN_ENFORCER_MSI_TO_INSTALL" $logfile
+Write-Log "INFO" "WIN_SCANNER_BRANCH is: $WIN_SCANNER_BRANCH" $logfile
+Write-Log "INFO" "WIN_SCANNER_MSI_TO_INSTALL is: $WIN_SCANNER_MSI_TO_INSTALL" $logfile
 }
 
 function downloadFilesEnforcer(){
+Start-Sleep -s 30
 Write-Log "INFO" "step start: downloading file Enforcer" $logfile
+$Username = $USER_NAME
+$Password = $USER_PASSWORD
 if (!(Test-Path c:\temp)) {New-Item -ItemType Directory c:\temp};
-$url = "https://aquaautomationsa.blob.core.windows.net/servicefabric/scripts/$AQUA_ENFORCER_VERSION"
-$output = "c:\temp\AquaAgentWindowsSFInstaller.msi"
+$url = "https://download.aquasec.com/internal/windows-enforcer/$WIN_ENFORCER_BRANCH/$WIN_ENFORCER_MSI_TO_INSTALL"
+$Path = "c:\temp\AquaAgentWindowsSFInstaller.msi"
+$WebClient = New-Object System.Net.WebClient
+$WebClient.Credentials = New-Object System.Net.Networkcredential($Username, $Password)
 $start_time = Get-Date
-Invoke-WebRequest -Uri $url -OutFile $output
+$WebClient.DownloadFile( $url, $path )
 Write-Log "INFO" "step end: downloading file Enforcer: Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)" $logfile
 }
 
 function downloadFilesScanner(){
+Start-Sleep -s 30
 Write-Log "INFO" "step start: downloading file scanner-cli" $logfile
+$Username = $USER_NAME
+$Password = $USER_PASSWORD
 if (!(Test-Path c:\temp)) {New-Item -ItemType Directory c:\temp};
-$url = "https://aquaautomationsa.blob.core.windows.net/servicefabric/scripts/$AQUA_SCANNER_VERSION"
-$output = "c:\temp\AquaScannerCLIWindowsSFInstaller.msi"
+$url = "https://download.aquasec.com/internal/windows-scanner/$WIN_SCANNER_BRANCH/$WIN_SCANNER_MSI_TO_INSTALL"
+$Path = "c:\temp\AquaScannerCLIWindowsSFInstaller.msi"
+$WebClient = New-Object System.Net.WebClient
+$WebClient.Credentials = New-Object System.Net.Networkcredential($Username, $Password)
 $start_time = Get-Date
-Invoke-WebRequest -Uri $url -OutFile $output
+$start_time = Get-Date
+$WebClient.DownloadFile( $url, $path )
 Write-Log "INFO" "step end: downloading file scanner-cli: Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)" $logfile
 }
 
@@ -75,7 +92,7 @@ Write-Log "INFO" "step end: run enforcer MSI" $logfile
 
 Write-Log "INFO" "step start: validate installation" $logfile
 $installedEnforcer = (Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* |  Select-Object DisplayName |  Where-Object {$_.DisplayName -eq 'Aqua Security Enforcer Windows Installer'})
-Start-Sleep -s 30
+Start-Sleep -s 10
 if (-not ([string]::IsNullOrEmpty($installedEnforcer))) {New-Item c:\temp\job_enforcer_complete.txt -type file -force -value "Aqua Agent Installed at $(Get-Date -format 'u')"}
 else 
 {New-Item c:\temp\job_enforcer_failed.txt -type file -force -value "Aqua Enforcer install failed at $(Get-Date -format 'u')"}
@@ -92,7 +109,7 @@ Write-Log "INFO" "running: c:\temp\AquaScannerCLIWindowsSFInstaller.msi SERVER=$
 Start-Process msiexec -Wait -ArgumentList "/I c:\temp\AquaScannerCLIWindowsSFInstaller.msi SERVER=$AQUA_SERVER_URL USERNAME=administrator PASSWORD=Password1 /quiet /qn /L*V C:\temp\aquaScannerCLI_msi.log";
 Write-Log "INFO" "step end: run scanner MSI" $logfile
 $installed = (Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* |  Select-Object DisplayName |  Where-Object {$_.DisplayName -eq 'Aqua Security Scanner CLI Windows Installer'})
-Start-Sleep -s 30
+Start-Sleep -s 10
 if (-not ([string]::IsNullOrEmpty($installed))) {New-Item c:\temp\job_scanner_complete.txt -type file -force -value "Aqua Scanner CLI Installed at $(Get-Date -format 'u')"}
 else 
 {New-Item c:\temp\job_scanner_failed.txt -type file -force -value "Aqua install scanner cli failed at $(Get-Date -format 'u')"}
