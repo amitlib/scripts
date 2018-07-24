@@ -6,18 +6,17 @@ echo "step start: globals"
 ADMIN_USER=ubuntu
 DOCKER_USER=$1
 DOCKER_PASS=$2
-DOCKER_REGISTRY=$3
-AQUA_REPO=$4
-AQUA_VERSION=$5
-AQUA_LICENSE_TOKEN=$6
-AQUA_ADMIN_PASSWORD=$7
-INSTALL_DOCKER="${8:-no}"
+AQUA_REPO=$3
+AQUA_VERSION=$4
+AQUA_LICENSE_TOKEN=$5
+AQUA_ADMIN_PASSWORD=$6
+INSTALL_DOCKER="${7:-no}"
 echo "step end: globals"
 
 echo "step start: arguments"
 echo "ADMIN_USER: $ADMIN_USER"
 echo "DOCKER_USER: $DOCKER_USER"
-echo "DOCKER_REGISTRY: $DOCKER_REGISTRY"
+echo "AQUA_REPO: $AQUA_REPO"
 echo "AQUA_VERSION: $AQUA_VERSION"
 echo "AQUA_ADMIN_PASSWORD: $AQUA_ADMIN_PASSWORD"
 echo "INSTALL_DOCKER: $INSTALL_DOCKER"
@@ -86,13 +85,13 @@ docker run -d -p 5432:5432 -p 3622:3622 -p 8080:8080 \
    -e ADMIN_PASSWORD=${AQUA_ADMIN_PASSWORD} \
    -v /var/lib/postgresql/data:/var/lib/postgresql/data \
    -v /var/run/docker.sock:/var/run/docker.sock \
- $DOCKER_REGISTRY/$AQUA_REPO/csp:$AQUA_VERSION
+$AQUA_REPO/csp:$AQUA_VERSION
  
  lExitCode=$?
 if [ $lExitCode == "0" ];then
-  echo "Sucessfully ran  $DOCKER_REGISTRY/$AQUA_REPO/csp:$AQUA_VERSION"
+  echo "Sucessfully ran  $AQUA_REPO/csp:$AQUA_VERSION"
 else
-  echo "Failed to run  $DOCKER_REGISTRY/$AQUA_REPO/csp:$AQUA_VERSION, exit code : $lExitCode , exiting"
+  echo "Failed to run  $AQUA_REPO/csp:$AQUA_VERSION, exit code : $lExitCode , exiting"
   exit 1
 fi
 echo "step start: deploy Aqua CSP"
