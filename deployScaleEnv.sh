@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #Globals
-AQUA_REGISTRY="${1:-aquadev}"
-AQUA_VERSION="${2:-master}"
+AQUA_REGISTRY="${1}"
+AQUA_VERSION="${2}"
 DOCKER_HUB_REGISTRY_USER=${3}
 DOCKER_HUB_REGISTRY_PASSWORD=${4}
 AQUA_DB_NAME=${5}
