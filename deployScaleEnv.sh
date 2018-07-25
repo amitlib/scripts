@@ -133,15 +133,12 @@ if [ $HOST_VM == "vm2" ];then
     echo "step end: add prometheus data source"
 
     echo "step start: get Grafana dashboard from GitHub"
+    sleep 10
     wget https://raw.githubusercontent.com/amitlib/scripts/master/grafanaDashboardAquaNDockerMonitoring.json
     echo "step end: get Grafana dashboard from GitHub"
 
-    echo "step start: change dashboard name"
-    cat grafanaDashboardAquaNDockerMonitoring.json  | jq -r --arg DASHBOARD_NAME "$DASHBOARD_NAME" '.title=$DASHBOARD_NAME' | sponge grafanaDashboardAquaNDockerMonitoring.json
-    echo "step end: change dashboard name"
-
     echo "step start: add dashboard"
-    #curl -s -H 'Content-Type: application/json' -H 'Content-Type: application/json' -u 'admin:admin' -d @grafanaDashboardAquaNDockerMonitoring.json -X POST "http://$(hostname -i):3000/api/dashboards/db"
+    curl --user admin:admin 'http://$(hostname -i):3000/api/dashboards/db' -X POST -H 'Content-Type:application/json;charset=UTF-8' --data-binary @./grafanaDashboardAquaNDockerMonitoring.json 
     echo "step start: add dashboard"
 fi
 }
