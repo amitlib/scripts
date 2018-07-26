@@ -127,6 +127,8 @@ elif [ $HOST_VM == "vm2" ];then
     
     echo "step start create aqua table"
     wget https://raw.githubusercontent.com/amitlib/scripts/master/aqua_monitor.sql
+    sleep 30
+    export PGPASSWORD=Password1
     psql -f aqua_monitor.sql -h $(hostname -i) -d postgres -U postgres
     echo "step end create aqua table"
 
@@ -149,7 +151,7 @@ deployMonitors()
 if [ $HOST_VM == "vm2" ];then
     sleep 30
     echo "step start: add postgresql data source"
-    curl -s -H 'Content-Type: application/json' -u 'admin:admin' -d '{"name":"NFT-Postgres","type":"postgres","access": "proxy","url": "http://'$(hostname -i)':5432","password": "Password1","user": "postgres","database": "postgres","basicAuth": false,"isDefault": false,"jsonData": {"sslmode": "disable"},"readOnly": false}' -X POST "http://$(hostname -i):3000/api/datasources"
+    curl -s -H 'Content-Type: application/json' -u 'admin:admin' -d '{"name":"NFT-Postgres","type":"postgres","access": "proxy","url": "$(hostname -i)':5432","password": "Password1","user": "postgres","database": "postgres","basicAuth": false,"isDefault": false,"jsonData": {"sslmode": "disable"},"readOnly": false}' -X POST "http://$(hostname -i):3000/api/datasources"
     echo "step end: add postgresql data source"
 
     echo "step start: add prometheus data source"
