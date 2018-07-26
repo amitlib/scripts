@@ -56,6 +56,12 @@ docker run --volume=/:/rootfs:ro \
 deployAqua()
 {
 if [ $HOST_VM == "vm0" ];then
+echo "step start: verify DB connection"
+    export PGPASSWORD=${AQUA_DB_PASSWORD}
+    until [ "$( psql -h $AQUA_DB_SERVER -d postgres -U $AQUA_DB_USER -tAc "SELECT 1 FROM pg_database WHERE datname='postgres'" )" = '1' ];do 
+    sleep 10
+    done
+echo "step end: verify DB connection"
 echo "step start:Deploying Aqua server version: $AQUA_REG/$AQUA_VER "
     docker run -d \
     --name aqua-web \
@@ -79,6 +85,12 @@ echo "step start:Deploying Aqua server version: $AQUA_REG/$AQUA_VER "
     echo "step end: monitoring server logs to validate startup"
 echo "step start:Deploying Aqua server version: $AQUA_REG/$AQUA_VER "
 elif [ $HOST_VM == "vm1" ];then
+echo "step start: verify DB connection"
+    export PGPASSWORD=${AQUA_DB_PASSWORD}
+    until [ "$( psql -h $AQUA_DB_SERVER -d postgres -U $AQUA_DB_USER -tAc "SELECT 1 FROM pg_database WHERE datname='postgres'" )" = '1' ];do 
+    sleep 10
+    done
+echo "step end: verify DB connection"
     docker run -d --name aqua-gateway \
     -p 3622:3622 \
     -p 8085:8085 \
