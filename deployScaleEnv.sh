@@ -105,6 +105,18 @@ elif [ $HOST_VM == "vm2" ];then
         --web.enable-lifecycle \
         --web.enable-admin-api
     echo "step end:Deploying prometheus"
+    
+    echo "step start: deploying postgrsql DB"
+    docker run --name postgres \
+    -e POSTGRES_PASSWORD=Password1 \
+    -p 5432:5432 \
+    -d postgres:9.6
+    echo "step end: deploying postgrsql DB"
+    
+    echo "step start create aqua table"
+    wget https://raw.githubusercontent.com/amitlib/scripts/master/aqua_monitor.sql
+    psql -f aqua_monitor.sql -h $(hostname -i) -d postgres -U postgres
+    echo "step end create aqua table"
 
     echo "step start:Deploying grafana-storage volume"
     docker volume create grafana-storage
@@ -125,7 +137,7 @@ deployMonitors()
 if [ $HOST_VM == "vm2" ];then
     sleep 30
     echo "step start: add postgresql data source"
-    curl -s -H 'Content-Type: application/json' -u 'admin:admin' -d '{"name":"NFT-Postgres","type":"postgres","access": "proxy","url": "'$MONITOR_POSTGRES_URL':5432","password": "Pepelib123!","user": "postgres","database": "postgres","basicAuth": false,"isDefault": false,"jsonData": {"sslmode": "disable"},"readOnly": false}' -X POST "http://$(hostname -i):3000/api/datasources"
+    curl -s -H 'Content-Type: application/json' -u 'admin:admin' -d '{"name":"NFT-Postgres","type":"postgres","access": "proxy","url": "http://'$(hostname -i)':5432","password": "Password1","user": "postgres","database": "postgres","basicAuth": false,"isDefault": false,"jsonData": {"sslmode": "disable"},"readOnly": false}' -X POST "http://$(hostname -i):3000/api/datasources"
     echo "step end: add postgresql data source"
 
     echo "step start: add prometheus data source"
@@ -138,7 +150,7 @@ if [ $HOST_VM == "vm2" ];then
     echo "step end: get Grafana dashboard from GitHub"
 
     echo "step start: add dashboard"
-    curl --user admin:admin 'http://$(hostname -i):3000/api/dashboards/db' -X POST -H 'Content-Type:application/json;charset=UTF-8' --data-binary @./grafanaDashboardAquaNDockerMonitoring.json 
+    curl --user admin:admin "http://$(hostname -i):3000/api/dashboards/import" -X POST -H 'Content-Type:application/json;charset=UTF-8' -H 'Accept: application/json, text/plain, */*' --data-binary @./grafanaDashboardAquaNDockerMonitoring.json 
     echo "step start: add dashboard"
 fi
 }
