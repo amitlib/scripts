@@ -1,0 +1,16 @@
+CREATE TABLE enforcer_monitor (
+    timestamp timestamp default current_timestamp,
+    test_name text NOT NULL,
+    enforcer_version text NOT NULL,
+    command_name text NOT NULL,
+	 image_name text,
+    response_time numeric NOT NULL,
+    enforcer_running text NOT NULL,
+    enforcer_host_ip text NOT NULL,
+    running_containers integer,
+    ACL_DB_IMAGES_COUNT integer,
+    ACL_DB_SERVICES_COUNT integer,
+    secret_count integer,
+    enforcer_log_errors integer,
+    slk_processes integer,
+    host_distribution text);
