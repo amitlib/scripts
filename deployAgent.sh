@@ -51,9 +51,9 @@ if [ $INSTALLDOCKER == "yes" ];then
      $(lsb_release -cs) \
      stable"
   sudo apt-get update
-  sudo apt-get install -y docker-ce sqlite3 jq postgresql-client sysstat dos2unix
+  sudo apt-get install -y docker-ce sqlite3 jq postgresql-client sysstat dos2unix git postgresql-client-10 postgresql-contrib-10
   sudo groupadd docker
-  sudo usermod -aG docker $(whoami)
+  sudo usermod -aG docker ubuntu
   sudo systemctl start docker
   sudo systemctl enable docker
    sudo apt-get update
