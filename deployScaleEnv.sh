@@ -184,9 +184,17 @@ fi
 
 main()
 {
+echo "step start: deployCadvisor"
 check_exit deployCadvisor
+echo "step end: deployCadvisor"
+echo "step start: deployAqua"
 check_exit deployAqua
+echo "step end: deployAqua"
+echo "step start: deployMonitors"
 check_exit deployMonitors
+echo "step end: deployMonitors"
+echo "step start: addRegestries"
 check_exit addRegestries
+echo "step end: addRegestries"
 }
 main
