@@ -151,11 +151,11 @@ deployMonitors()
 if [ $HOST_VM == "vm2" ];then
     sleep 30
     echo "step start: add postgresql data source"
-    curl -s -H 'Content-Type: application/json' -u 'admin:admin' -d '{"name":"NFT-Postgres","type":"postgres","access": "proxy","url": "$(hostname -i)':5432","password": "Password1","user": "postgres","database": "postgres","basicAuth": false,"isDefault": false,"jsonData": {"sslmode": "disable"},"readOnly": false}' -X POST "http://$(hostname -i):3000/api/datasources"
+    curl -s -H 'Content-Type: application/json' -u 'admin:admin' -d '{"name":"NFT-Postgres","type":"postgres","access": "proxy","url": '"$(hostname -i):5432"',"password": "Password1","user": "postgres","database": "postgres","basicAuth": false,"isDefault": false,"jsonData": {"sslmode": "disable"},"readOnly": false}' -X POST "http://$(hostname -i):3000/api/datasources"
     echo "step end: add postgresql data source"
 
     echo "step start: add prometheus data source"
-    curl -s -H 'Content-Type: application/json' -u 'admin:admin' -d '{"name":"Prometheus","type":"prometheus","access": "proxy","url": "http://'$(hostname -i)':9090","password": "","user": "","database": "","basicAuth": false,"isDefault": true,"jsonData": {},"readOnly": false}' -X POST "http://$(hostname -i):3000/api/datasources"
+    curl -s -H 'Content-Type: application/json' -u 'admin:admin' -d '{"name":"Prometheus","type":"prometheus","access": "proxy","url": '"http://$(hostname -i):9090"',"password": "","user": "","database": "","basicAuth": false,"isDefault": true,"jsonData": {},"readOnly": false}' -X POST "http://$(hostname -i):3000/api/datasources"
     echo "step end: add prometheus data source"
 
     echo "step start: get Grafana dashboard from GitHub"
