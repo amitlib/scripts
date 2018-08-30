@@ -11,7 +11,7 @@ AQUA_TOKEN=${7}
 AQUA_ADMIN_PASSWORD=${8}
 MONITOR_POSTGRES_URL=${9}
 AQUASCALE_REG_PASSWORD=${10}
-AUTO_ENV=${11}
+ENV_TYPE=${11}
 AQUA_DB_USER="aquaadm@${AQUA_DB_NAME}"
 AQUA_DB_SERVER="${5}.postgres.database.azure.com"
 HOST_VM=$(hostname | awk -F'-' ' { print $NF } ')
@@ -89,7 +89,7 @@ fi
 }
 deployAquaGateway()
 {
-if [[ $HOST_VM == "vm1" && $AUTO_ENV == "Yes" ]] || [[ $HOST_VM == "vm0" && $AUTO_ENV != "Yes" ]];then
+if [[ $HOST_VM == "vm1" && $ENV_TYPE == "scale" ]] || [[ $HOST_VM == "vm0" && $ENV_TYPE == "scan" ]] || [[ $HOST_VM == "vm0" && $ENV_TYPE == "enforcer" ]];then
     echo "step start: verify DB connection"
     export PGPASSWORD=${AQUA_DB_PASSWORD}
     until [ "$( psql -h $AQUA_DB_SERVER -d postgres -U $AQUA_DB_USER -tAc "SELECT 1 FROM pg_database WHERE datname='postgres'" )" = '1' ];do 
@@ -116,7 +116,7 @@ fi
 }
 deployMonitors()
 {
-if [ $HOST_VM == "vm2" && $AUTO_ENV == "Yes" ];then
+if [ $HOST_VM == "vm2" && $ENV_TYPE == "scale" ];then
     sudo mkdir -p /etc/prometheus
     sudo chown -R $(whoami):$(whoami) /etc/prometheus
     echo "step start:Deploying prometheus"
