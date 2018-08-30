@@ -114,6 +114,15 @@ if [[ $HOST_VM == "vm1" && $ENV_TYPE == "scale" ]] || [[ $HOST_VM == "vm0" && $E
     echo "step end: start aqua gateway"
 fi
 }
+deployAquaScanner()
+{
+if [[ $HOST_VM == "vm1" && $ENV_TYPE == "scan" ]];then
+    lServerHost="$(hostname | awk -F'-' '{ print $1 }')-vm0"
+    docker run --name scanner1-$(hostname | awk -F'-' ' { print $NF } ') -d \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    $AQUA_REGISTRY/scanner-cli:${AQUA_VERSION} daemon --direct-cc --user administrator --password $AQUA_ADMIN_PASSWORD --host http://${lServerHost}:8080
+fi
+}
 deployMonitors()
 {
 if [ $HOST_VM == "vm2" && $ENV_TYPE == "scale" ];then
@@ -208,5 +217,9 @@ echo "step end: deployMonitors"
 echo "step start: addRegestries"
 check_exit addRegestries
 echo "step end: addRegestries"
+
+echo "step start: deployAquaScanner"
+deployAquaScanner
+echo "step end deployAquaScanner"
 }
 main
