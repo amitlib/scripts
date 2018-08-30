@@ -11,6 +11,7 @@ AQUA_TOKEN=${7}
 AQUA_ADMIN_PASSWORD=${8}
 MONITOR_POSTGRES_URL=${9}
 AQUASCALE_REG_PASSWORD=${10}
+AUTO_ENV=${11}
 AQUA_DB_USER="aquaadm@${AQUA_DB_NAME}"
 AQUA_DB_SERVER="${5}.postgres.database.azure.com"
 HOST_VM=$(hostname | awk -F'-' ' { print $NF } ')
@@ -21,8 +22,8 @@ cd /home/$(whoami)/scripts
 docker login -u $DOCKER_HUB_REGISTRY_USER -p $DOCKER_HUB_REGISTRY_PASSWORD
 
 echo "step start: validate input parameters"
-if [ $# -lt 10 ];then
-    echo "Missing parameters: arg1:$1,arg2:$2,arg3:$3,arg4:$4,arg5:$5,arg6:$6,arg7:$7,arg8:$8,arg9:$9,arg10:$10"
+if [ $# -lt 11 ];then
+    echo "Missing parameters: arg1:$1,arg2:$2,arg3:$3,arg4:$4,arg5:$5,arg6:$6,arg7:$7,arg8:$8,arg9:$9,arg10:${10},arg11:${11}"
     exit 1
 else
     echo "Parameter validation passed successfully"
@@ -53,7 +54,7 @@ docker run --volume=/:/rootfs:ro \
 --name=cadvisor google/cadvisor:latest
 }
 
-deployAqua()
+deployAquaServer()
 {
 if [ $HOST_VM == "vm0" ];then
 echo "step start: verify DB connection"
@@ -84,13 +85,18 @@ echo "step start:Deploying Aqua server version: $AQUA_REG/$AQUA_VER "
     ( docker logs aqua-web -f & ) | grep -q "http server started"
     echo "step end: monitoring server logs to validate startup"
 echo "step start:Deploying Aqua server version: $AQUA_REG/$AQUA_VER "
-elif [ $HOST_VM == "vm1" ];then
-echo "step start: verify DB connection"
+fi
+}
+deployAquaGateway()
+{
+if [[ $HOST_VM == "vm1" && $AUTO_ENV == "Yes" ]] || [[ $HOST_VM == "vm0" && $AUTO_ENV != "Yes" ]];then
+    echo "step start: verify DB connection"
     export PGPASSWORD=${AQUA_DB_PASSWORD}
     until [ "$( psql -h $AQUA_DB_SERVER -d postgres -U $AQUA_DB_USER -tAc "SELECT 1 FROM pg_database WHERE datname='postgres'" )" = '1' ];do 
     sleep 10
     done
-echo "step end: verify DB connection"
+    echo "step end: verify DB connection"
+    echo "step start: start aqua gateway"
     docker run -d --name aqua-gateway \
     -p 3622:3622 \
     -p 8085:8085 \
@@ -105,26 +111,31 @@ echo "step end: verify DB connection"
     -e SCALOCK_AUDIT_DBNAME=slk_audit \
     -e SCALOCK_AUDIT_DBHOST=$AQUA_DB_SERVER \
     $AQUA_REGISTRY/gateway:$AQUA_VERSION
-elif [ $HOST_VM == "vm2" ];then
+    echo "step end: start aqua gateway"
+fi
+}
+deployMonitors()
+{
+if [ $HOST_VM == "vm2" && $AUTO_ENV == "Yes" ];then
     sudo mkdir -p /etc/prometheus
     sudo chown -R $(whoami):$(whoami) /etc/prometheus
     echo "step start:Deploying prometheus"
-        docker run -d \
-        -p 9090:9090 --net="host" \
-        -v /etc/prometheus:/etc/prometheus \
-        prom/prometheus \
-        --config.file=/etc/prometheus/prometheus.yml \
-        --web.enable-lifecycle \
-        --web.enable-admin-api
+    docker run -d \
+    -p 9090:9090 --net="host" \
+    -v /etc/prometheus:/etc/prometheus \
+    prom/prometheus \
+    --config.file=/etc/prometheus/prometheus.yml \
+    --web.enable-lifecycle \
+    --web.enable-admin-api
     echo "step end:Deploying prometheus"
-    
+
     echo "step start: deploying postgrsql DB"
     docker run --name postgres \
     -e POSTGRES_PASSWORD=Password1 \
     -p 5432:5432 \
     -d postgres:9.6
     echo "step end: deploying postgrsql DB"
-    
+
     echo "step start create aqua table"
     wget https://raw.githubusercontent.com/amitlib/scripts/master/aqua_monitor.sql
     sleep 30
@@ -143,12 +154,6 @@ elif [ $HOST_VM == "vm2" ];then
     -v grafana-storage:/var/lib/grafana \
     grafana/grafana
     echo "step end:Deploying Grafana"
-fi
-}
-
-deployMonitors()
-{
-if [ $HOST_VM == "vm2" ];then
     sleep 30
     echo "step start: add postgresql data source"
     curl -s -H 'Content-Type: application/json' -u 'admin:admin' -d '{"name":"NFT-Postgres","type":"postgres","access": "proxy","url": '"$(hostname -i):5432"',"password": "Password1","user": "postgres","database": "postgres","basicAuth": false,"isDefault": false,"jsonData": {"sslmode": "disable"},"readOnly": false}' -X POST "http://$(hostname -i):3000/api/datasources"
@@ -187,12 +192,19 @@ main()
 echo "step start: deployCadvisor"
 check_exit deployCadvisor
 echo "step end: deployCadvisor"
-echo "step start: deployAqua"
-check_exit deployAqua
-echo "step end: deployAqua"
+
+echo "step start: deployAquaServer"
+check_exit deployAquaServer
+echo "step end: deployAquaServer"
+
+echo "step start: deployAquaGateway"
+check_exit deployAquaGateway
+echo "step end: deployAquaGateway"
+
 echo "step start: deployMonitors"
 check_exit deployMonitors
 echo "step end: deployMonitors"
+
 echo "step start: addRegestries"
 check_exit addRegestries
 echo "step end: addRegestries"
