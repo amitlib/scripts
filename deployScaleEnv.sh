@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#Globals
+#Globals#
 AQUA_REGISTRY="${1}"
 AQUA_VERSION="${2}"
 DOCKER_HUB_REGISTRY_USER=${3}
