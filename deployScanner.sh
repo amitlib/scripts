@@ -29,6 +29,7 @@ docker run --volume=/:/rootfs:ro --volume=/var/run:/var/run:rw --volume=/sys:/sy
 for i in $(seq 1 $NO_OF_SCANNERS);do 
 docker run --name scanner${i}-$(hostname | awk -F'-' ' { print $NF } ') -d \
 -v /var/run/docker.sock:/var/run/docker.sock \
+-e SCALOCK_LOG_LEVEL=DEBUG \
 $CONTAINER_REGISTRY/${AQUA_REGISTRY}/scanner-cli:${AQUA_VERSION} daemon \
 --direct-cc --user administrator --password $AQUA_ADMIN_PASSWORD --host $AQUA_SERVER_IP 
 done
