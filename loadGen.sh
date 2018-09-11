@@ -36,7 +36,7 @@ while true;do
     for i in $(sudo docker ps -a | awk '!/agent/ && !/cadvisor/ && !/logspout/ && !/CONTAINER/ && !/registry/ {print $1}');do
         sudo docker start $i
     done
-    sleep 30
+    sleep 180
     
 done
 echo "step end:run commands"
