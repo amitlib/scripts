@@ -15,12 +15,26 @@
 			"type": "datasource",
 			"pluginId": "prometheus",
 			"pluginName": "Prometheus"
+		},
+		{
+			"name": "DS_AZURE_MONITOR",
+			"label": "AZURE_MONITOR",
+			"description": "",
+			"type": "datasource",
+			"pluginId": "grafana-azure-monitor-datasource",
+			"pluginName": "Azure Monitor"
 		}],
 		"__requires": [{
 			"type": "grafana",
 			"id": "grafana",
 			"name": "Grafana",
-			"version": "5.2.1"
+			"version": "5.2.2"
+		},
+		{
+			"type": "datasource",
+			"id": "grafana-azure-monitor-datasource",
+			"name": "Azure Monitor",
+			"version": "0.1.2"
 		},
 		{
 			"type": "panel",
@@ -62,7 +76,7 @@
 		"gnetId": 193,
 		"graphTooltip": 1,
 		"id": null,
-		"iteration": 1532589178602,
+		"iteration": 1536749313607,
 		"links": [],
 		"panels": [{
 			"cacheTimeout": null,
@@ -533,12 +547,12 @@
 			},
 			"id": 10,
 			"legend": {
-				"alignAsTable": false,
+				"alignAsTable": true,
 				"avg": false,
 				"current": true,
 				"max": false,
 				"min": false,
-				"rightSide": false,
+				"rightSide": true,
 				"show": true,
 				"total": false,
 				"values": true
@@ -559,9 +573,17 @@
 				"alias": "",
 				"expr": "",
 				"format": "time_series",
+				"hide": false,
 				"intervalFactor": 1,
 				"rawSql": "SELECT\r\n  $__time(timestamp),\r\n  scanq_pending,scanq_progress,scanq_finished,scanq_failed,scanners_online,agents_connected,scanq_spm,scanq_spmps\r\n  from\r\n  aqua_monitor\r\nWHERE\r\n  $__timeFilter(timestamp) and testname=$testname",
 				"refId": "A"
+			},
+			{
+				"alias": "",
+				"format": "time_series",
+				"hide": true,
+				"rawSql": "SELECT\r\n  $__time(time_stamp),\r\n  resp_time\r\n  from\r\n  (SELECT no_enforcers,\r\n          no_images,\r\n   \t\t  gateway_calls,\r\n   \t      gateway_bytes,\r\n          TIMESTAMP AS time_stamp,\r\n          agent_log,\r\n          agent_log AS log_statement,\r\n          extract(epoch\r\n          FROM TIMESTAMP) - lag(extract(epoch\r\n          FROM TIMESTAMP)) OVER (\r\n         ORDER BY TIMESTAMP) AS resp_time\r\n   FROM rtt_testing) AS BABU\r\nWHERE\r\n  $__timeFilter(time_stamp) and log_statement='host.echo.replay'",
+				"refId": "B"
 			}],
 			"thresholds": [],
 			"timeFrom": null,
@@ -608,6 +630,1326 @@
 			"bars": false,
 			"dashLength": 10,
 			"dashes": false,
+			"datasource": "${DS_AZURE_MONITOR}",
+			"fill": 1,
+			"gridPos": {
+				"h": 9,
+				"w": 12,
+				"x": 0,
+				"y": 12
+			},
+			"id": 32,
+			"legend": {
+				"alignAsTable": true,
+				"avg": true,
+				"current": true,
+				"max": true,
+				"min": false,
+				"rightSide": false,
+				"show": true,
+				"total": false,
+				"values": true
+			},
+			"lines": true,
+			"linewidth": 1,
+			"links": [],
+			"nullPointMode": "null",
+			"percentage": false,
+			"pointradius": 5,
+			"points": false,
+			"renderer": "flot",
+			"seriesOverrides": [],
+			"spaceLength": 10,
+			"stack": false,
+			"steppedLine": false,
+			"targets": [{
+				"appInsights": {
+					"groupBy": "none",
+					"metricName": "select",
+					"rawQuery": false,
+					"rawQueryString": "",
+					"spliton": "",
+					"timeGrainType": "auto",
+					"xaxis": "timestamp",
+					"yaxis": ""
+				},
+				"azureMonitor": {
+					"aggOptions": ["None",
+					"Average",
+					"Minimum",
+					"Maximum",
+					"Total",
+					"Count"],
+					"aggregation": "Average",
+					"dimension": "",
+					"dimensionFilter": "*",
+					"dimensions": [],
+					"metricDefinition": "Microsoft.DBforPostgreSQL/servers",
+					"metricName": "cpu_percent",
+					"resourceGroup": "rnd-scale32-230718-rg",
+					"resourceName": "aqua-db-scale",
+					"timeGrain": "auto",
+					"timeGrains": [{
+						"text": "auto",
+						"value": "auto"
+					},
+					{
+						"text": "1 minute",
+						"value": "PT1M"
+					},
+					{
+						"text": "5 minutes",
+						"value": "PT5M"
+					},
+					{
+						"text": "15 minutes",
+						"value": "PT15M"
+					},
+					{
+						"text": "30 minutes",
+						"value": "PT30M"
+					},
+					{
+						"text": "1 hour",
+						"value": "PT1H"
+					},
+					{
+						"text": "6 hours",
+						"value": "PT6H"
+					},
+					{
+						"text": "12 hours",
+						"value": "PT12H"
+					},
+					{
+						"text": "1 day",
+						"value": "P1D"
+					}]
+				},
+				"expr": "",
+				"format": "time_series",
+				"intervalFactor": 1,
+				"queryType": "Azure Monitor",
+				"refId": "A"
+			},
+			{
+				"appInsights": {
+					"groupBy": "none",
+					"metricName": "select",
+					"rawQuery": false,
+					"rawQueryString": "",
+					"spliton": "",
+					"timeGrainType": "auto",
+					"xaxis": "timestamp",
+					"yaxis": ""
+				},
+				"azureMonitor": {
+					"aggOptions": ["None",
+					"Average",
+					"Minimum",
+					"Maximum",
+					"Total",
+					"Count"],
+					"aggregation": "Average",
+					"dimension": "",
+					"dimensionFilter": "*",
+					"dimensions": [],
+					"metricDefinition": "Microsoft.DBforPostgreSQL/servers",
+					"metricName": "memory_percent",
+					"resourceGroup": "rnd-scale32-230718-rg",
+					"resourceName": "aqua-db-scale",
+					"timeGrain": "auto",
+					"timeGrains": [{
+						"text": "auto",
+						"value": "auto"
+					},
+					{
+						"text": "1 minute",
+						"value": "PT1M"
+					},
+					{
+						"text": "5 minutes",
+						"value": "PT5M"
+					},
+					{
+						"text": "15 minutes",
+						"value": "PT15M"
+					},
+					{
+						"text": "30 minutes",
+						"value": "PT30M"
+					},
+					{
+						"text": "1 hour",
+						"value": "PT1H"
+					},
+					{
+						"text": "6 hours",
+						"value": "PT6H"
+					},
+					{
+						"text": "12 hours",
+						"value": "PT12H"
+					},
+					{
+						"text": "1 day",
+						"value": "P1D"
+					}]
+				},
+				"queryType": "Azure Monitor",
+				"refId": "B"
+			},
+			{
+				"appInsights": {
+					"groupBy": "none",
+					"metricName": "select",
+					"rawQuery": false,
+					"rawQueryString": "",
+					"spliton": "",
+					"timeGrainType": "auto",
+					"xaxis": "timestamp",
+					"yaxis": ""
+				},
+				"azureMonitor": {
+					"aggOptions": ["None",
+					"Average",
+					"Minimum",
+					"Maximum",
+					"Total",
+					"Count"],
+					"aggregation": "Total",
+					"dimension": "",
+					"dimensionFilter": "*",
+					"dimensions": [],
+					"metricDefinition": "Microsoft.DBforPostgreSQL/servers",
+					"metricName": "storage_used",
+					"resourceGroup": "rnd-scale32-230718-rg",
+					"resourceName": "aqua-db-scale",
+					"timeGrain": "auto",
+					"timeGrains": [{
+						"text": "auto",
+						"value": "auto"
+					},
+					{
+						"text": "1 minute",
+						"value": "PT1M"
+					},
+					{
+						"text": "5 minutes",
+						"value": "PT5M"
+					},
+					{
+						"text": "15 minutes",
+						"value": "PT15M"
+					},
+					{
+						"text": "30 minutes",
+						"value": "PT30M"
+					},
+					{
+						"text": "1 hour",
+						"value": "PT1H"
+					},
+					{
+						"text": "6 hours",
+						"value": "PT6H"
+					},
+					{
+						"text": "12 hours",
+						"value": "PT12H"
+					},
+					{
+						"text": "1 day",
+						"value": "P1D"
+					}]
+				},
+				"queryType": "Azure Monitor",
+				"refId": "C"
+			},
+			{
+				"appInsights": {
+					"groupBy": "none",
+					"metricName": "select",
+					"rawQuery": false,
+					"rawQueryString": "",
+					"spliton": "",
+					"timeGrainType": "auto",
+					"xaxis": "timestamp",
+					"yaxis": ""
+				},
+				"azureMonitor": {
+					"aggOptions": ["None",
+					"Average",
+					"Minimum",
+					"Maximum",
+					"Total",
+					"Count"],
+					"aggregation": "Average",
+					"dimension": "",
+					"dimensionFilter": "*",
+					"dimensions": [],
+					"metricDefinition": "Microsoft.DBforPostgreSQL/servers",
+					"metricName": "io_consumption_percent",
+					"resourceGroup": "rnd-scale32-230718-rg",
+					"resourceName": "aqua-db-scale",
+					"timeGrain": "auto",
+					"timeGrains": [{
+						"text": "auto",
+						"value": "auto"
+					},
+					{
+						"text": "1 minute",
+						"value": "PT1M"
+					},
+					{
+						"text": "5 minutes",
+						"value": "PT5M"
+					},
+					{
+						"text": "15 minutes",
+						"value": "PT15M"
+					},
+					{
+						"text": "30 minutes",
+						"value": "PT30M"
+					},
+					{
+						"text": "1 hour",
+						"value": "PT1H"
+					},
+					{
+						"text": "6 hours",
+						"value": "PT6H"
+					},
+					{
+						"text": "12 hours",
+						"value": "PT12H"
+					},
+					{
+						"text": "1 day",
+						"value": "P1D"
+					}]
+				},
+				"queryType": "Azure Monitor",
+				"refId": "D"
+			}],
+			"thresholds": [],
+			"timeFrom": null,
+			"timeShift": null,
+			"title": "Aqua DB",
+			"tooltip": {
+				"shared": true,
+				"sort": 0,
+				"value_type": "individual"
+			},
+			"type": "graph",
+			"xaxis": {
+				"buckets": null,
+				"mode": "time",
+				"name": null,
+				"show": true,
+				"values": []
+			},
+			"yaxes": [{
+				"format": "short",
+				"label": null,
+				"logBase": 1,
+				"max": null,
+				"min": null,
+				"show": true
+			},
+			{
+				"format": "short",
+				"label": null,
+				"logBase": 1,
+				"max": null,
+				"min": null,
+				"show": true
+			}],
+			"yaxis": {
+				"align": false,
+				"alignLevel": null
+			}
+		},
+		{
+			"aliasColors": {
+				
+			},
+			"bars": false,
+			"dashLength": 10,
+			"dashes": false,
+			"datasource": "${DS_AZURE_MONITOR}",
+			"fill": 1,
+			"gridPos": {
+				"h": 9,
+				"w": 12,
+				"x": 12,
+				"y": 12
+			},
+			"id": 33,
+			"legend": {
+				"alignAsTable": true,
+				"avg": true,
+				"current": true,
+				"max": true,
+				"min": false,
+				"show": true,
+				"total": false,
+				"values": true
+			},
+			"lines": true,
+			"linewidth": 1,
+			"links": [],
+			"nullPointMode": "null",
+			"percentage": false,
+			"pointradius": 5,
+			"points": false,
+			"renderer": "flot",
+			"seriesOverrides": [],
+			"spaceLength": 10,
+			"stack": false,
+			"steppedLine": false,
+			"targets": [{
+				"appInsights": {
+					"groupBy": "none",
+					"metricName": "select",
+					"rawQuery": false,
+					"rawQueryString": "",
+					"spliton": "",
+					"timeGrainType": "auto",
+					"xaxis": "timestamp",
+					"yaxis": ""
+				},
+				"azureMonitor": {
+					"aggOptions": ["None",
+					"Average",
+					"Minimum",
+					"Maximum",
+					"Total",
+					"Count"],
+					"aggregation": "Average",
+					"dimension": "",
+					"dimensionFilter": "*",
+					"dimensions": [],
+					"metricDefinition": "Microsoft.DBforPostgreSQL/servers",
+					"metricName": "cpu_percent",
+					"resourceGroup": "rnd-scale32-230718-rg",
+					"resourceName": "aqua-db-scale",
+					"timeGrain": "auto",
+					"timeGrains": [{
+						"text": "auto",
+						"value": "auto"
+					},
+					{
+						"text": "1 minute",
+						"value": "PT1M"
+					},
+					{
+						"text": "5 minutes",
+						"value": "PT5M"
+					},
+					{
+						"text": "15 minutes",
+						"value": "PT15M"
+					},
+					{
+						"text": "30 minutes",
+						"value": "PT30M"
+					},
+					{
+						"text": "1 hour",
+						"value": "PT1H"
+					},
+					{
+						"text": "6 hours",
+						"value": "PT6H"
+					},
+					{
+						"text": "12 hours",
+						"value": "PT12H"
+					},
+					{
+						"text": "1 day",
+						"value": "P1D"
+					}]
+				},
+				"expr": "",
+				"format": "time_series",
+				"hide": true,
+				"intervalFactor": 1,
+				"queryType": "Azure Monitor",
+				"refId": "A"
+			},
+			{
+				"appInsights": {
+					"groupBy": "none",
+					"metricName": "select",
+					"rawQuery": false,
+					"rawQueryString": "",
+					"spliton": "",
+					"timeGrainType": "auto",
+					"xaxis": "timestamp",
+					"yaxis": ""
+				},
+				"azureMonitor": {
+					"aggOptions": ["None",
+					"Average",
+					"Minimum",
+					"Maximum",
+					"Total",
+					"Count"],
+					"aggregation": "Average",
+					"dimension": "",
+					"dimensionFilter": "*",
+					"dimensions": [],
+					"metricDefinition": "Microsoft.DBforPostgreSQL/servers",
+					"metricName": "memory_percent",
+					"resourceGroup": "rnd-scale32-230718-rg",
+					"resourceName": "aqua-db-scale",
+					"timeGrain": "auto",
+					"timeGrains": [{
+						"text": "auto",
+						"value": "auto"
+					},
+					{
+						"text": "1 minute",
+						"value": "PT1M"
+					},
+					{
+						"text": "5 minutes",
+						"value": "PT5M"
+					},
+					{
+						"text": "15 minutes",
+						"value": "PT15M"
+					},
+					{
+						"text": "30 minutes",
+						"value": "PT30M"
+					},
+					{
+						"text": "1 hour",
+						"value": "PT1H"
+					},
+					{
+						"text": "6 hours",
+						"value": "PT6H"
+					},
+					{
+						"text": "12 hours",
+						"value": "PT12H"
+					},
+					{
+						"text": "1 day",
+						"value": "P1D"
+					}]
+				},
+				"hide": true,
+				"queryType": "Azure Monitor",
+				"refId": "B"
+			},
+			{
+				"appInsights": {
+					"groupBy": "none",
+					"metricName": "select",
+					"rawQuery": false,
+					"rawQueryString": "",
+					"spliton": "",
+					"timeGrainType": "auto",
+					"xaxis": "timestamp",
+					"yaxis": ""
+				},
+				"azureMonitor": {
+					"aggOptions": ["None",
+					"Average",
+					"Minimum",
+					"Maximum",
+					"Total",
+					"Count"],
+					"aggregation": "Total",
+					"dimension": "",
+					"dimensionFilter": "*",
+					"dimensions": [],
+					"metricDefinition": "Microsoft.DBforPostgreSQL/servers",
+					"metricName": "storage_used",
+					"resourceGroup": "rnd-scale32-230718-rg",
+					"resourceName": "aqua-db-scale",
+					"timeGrain": "auto",
+					"timeGrains": [{
+						"text": "auto",
+						"value": "auto"
+					},
+					{
+						"text": "1 minute",
+						"value": "PT1M"
+					},
+					{
+						"text": "5 minutes",
+						"value": "PT5M"
+					},
+					{
+						"text": "15 minutes",
+						"value": "PT15M"
+					},
+					{
+						"text": "30 minutes",
+						"value": "PT30M"
+					},
+					{
+						"text": "1 hour",
+						"value": "PT1H"
+					},
+					{
+						"text": "6 hours",
+						"value": "PT6H"
+					},
+					{
+						"text": "12 hours",
+						"value": "PT12H"
+					},
+					{
+						"text": "1 day",
+						"value": "P1D"
+					}]
+				},
+				"hide": true,
+				"queryType": "Azure Monitor",
+				"refId": "C"
+			},
+			{
+				"appInsights": {
+					"groupBy": "none",
+					"metricName": "select",
+					"rawQuery": false,
+					"rawQueryString": "",
+					"spliton": "",
+					"timeGrainType": "auto",
+					"xaxis": "timestamp",
+					"yaxis": ""
+				},
+				"azureMonitor": {
+					"aggOptions": ["None",
+					"Average",
+					"Minimum",
+					"Maximum",
+					"Total",
+					"Count"],
+					"aggregation": "Average",
+					"dimension": "",
+					"dimensionFilter": "*",
+					"dimensions": [],
+					"metricDefinition": "Microsoft.DBforPostgreSQL/servers",
+					"metricName": "io_consumption_percent",
+					"resourceGroup": "rnd-scale32-230718-rg",
+					"resourceName": "aqua-db-scale",
+					"timeGrain": "auto",
+					"timeGrains": [{
+						"text": "auto",
+						"value": "auto"
+					},
+					{
+						"text": "1 minute",
+						"value": "PT1M"
+					},
+					{
+						"text": "5 minutes",
+						"value": "PT5M"
+					},
+					{
+						"text": "15 minutes",
+						"value": "PT15M"
+					},
+					{
+						"text": "30 minutes",
+						"value": "PT30M"
+					},
+					{
+						"text": "1 hour",
+						"value": "PT1H"
+					},
+					{
+						"text": "6 hours",
+						"value": "PT6H"
+					},
+					{
+						"text": "12 hours",
+						"value": "PT12H"
+					},
+					{
+						"text": "1 day",
+						"value": "P1D"
+					}]
+				},
+				"hide": true,
+				"queryType": "Azure Monitor",
+				"refId": "D"
+			},
+			{
+				"appInsights": {
+					"groupBy": "none",
+					"metricName": "select",
+					"rawQuery": false,
+					"rawQueryString": "",
+					"spliton": "",
+					"timeGrainType": "auto",
+					"xaxis": "timestamp",
+					"yaxis": ""
+				},
+				"azureMonitor": {
+					"aggOptions": ["None",
+					"Average",
+					"Minimum",
+					"Maximum",
+					"Total",
+					"Count"],
+					"aggregation": "Total",
+					"dimension": "",
+					"dimensionFilter": "*",
+					"dimensions": [],
+					"metricDefinition": "Microsoft.DBforPostgreSQL/servers",
+					"metricName": "network_bytes_egress",
+					"resourceGroup": "rnd-scale32-230718-rg",
+					"resourceName": "aqua-db-scale",
+					"timeGrain": "auto",
+					"timeGrains": [{
+						"text": "auto",
+						"value": "auto"
+					},
+					{
+						"text": "1 minute",
+						"value": "PT1M"
+					},
+					{
+						"text": "5 minutes",
+						"value": "PT5M"
+					},
+					{
+						"text": "15 minutes",
+						"value": "PT15M"
+					},
+					{
+						"text": "30 minutes",
+						"value": "PT30M"
+					},
+					{
+						"text": "1 hour",
+						"value": "PT1H"
+					},
+					{
+						"text": "6 hours",
+						"value": "PT6H"
+					},
+					{
+						"text": "12 hours",
+						"value": "PT12H"
+					},
+					{
+						"text": "1 day",
+						"value": "P1D"
+					}]
+				},
+				"queryType": "Azure Monitor",
+				"refId": "E"
+			},
+			{
+				"appInsights": {
+					"groupBy": "none",
+					"metricName": "select",
+					"rawQuery": false,
+					"rawQueryString": "",
+					"spliton": "",
+					"timeGrainType": "auto",
+					"xaxis": "timestamp",
+					"yaxis": ""
+				},
+				"azureMonitor": {
+					"aggOptions": ["None",
+					"Average",
+					"Minimum",
+					"Maximum",
+					"Total",
+					"Count"],
+					"aggregation": "Total",
+					"dimension": "",
+					"dimensionFilter": "*",
+					"dimensions": [],
+					"metricDefinition": "Microsoft.DBforPostgreSQL/servers",
+					"metricName": "network_bytes_ingress",
+					"resourceGroup": "rnd-scale32-230718-rg",
+					"resourceName": "aqua-db-scale",
+					"timeGrain": "auto",
+					"timeGrains": [{
+						"text": "auto",
+						"value": "auto"
+					},
+					{
+						"text": "1 minute",
+						"value": "PT1M"
+					},
+					{
+						"text": "5 minutes",
+						"value": "PT5M"
+					},
+					{
+						"text": "15 minutes",
+						"value": "PT15M"
+					},
+					{
+						"text": "30 minutes",
+						"value": "PT30M"
+					},
+					{
+						"text": "1 hour",
+						"value": "PT1H"
+					},
+					{
+						"text": "6 hours",
+						"value": "PT6H"
+					},
+					{
+						"text": "12 hours",
+						"value": "PT12H"
+					},
+					{
+						"text": "1 day",
+						"value": "P1D"
+					}]
+				},
+				"queryType": "Azure Monitor",
+				"refId": "F"
+			}],
+			"thresholds": [],
+			"timeFrom": null,
+			"timeShift": null,
+			"title": "Aqua DB",
+			"tooltip": {
+				"shared": true,
+				"sort": 0,
+				"value_type": "individual"
+			},
+			"type": "graph",
+			"xaxis": {
+				"buckets": null,
+				"mode": "time",
+				"name": null,
+				"show": true,
+				"values": []
+			},
+			"yaxes": [{
+				"format": "decbytes",
+				"label": null,
+				"logBase": 1,
+				"max": null,
+				"min": null,
+				"show": true
+			},
+			{
+				"format": "decbytes",
+				"label": null,
+				"logBase": 1,
+				"max": null,
+				"min": null,
+				"show": true
+			}],
+			"yaxis": {
+				"align": false,
+				"alignLevel": null
+			}
+		},
+		{
+			"aliasColors": {
+				
+			},
+			"bars": false,
+			"dashLength": 10,
+			"dashes": false,
+			"datasource": "${DS_AZURE_MONITOR}",
+			"fill": 1,
+			"gridPos": {
+				"h": 10,
+				"w": 24,
+				"x": 0,
+				"y": 21
+			},
+			"id": 30,
+			"legend": {
+				"alignAsTable": true,
+				"avg": true,
+				"current": true,
+				"hideEmpty": true,
+				"hideZero": true,
+				"max": true,
+				"min": false,
+				"rightSide": false,
+				"show": true,
+				"total": false,
+				"values": true
+			},
+			"lines": false,
+			"linewidth": 1,
+			"links": [],
+			"nullPointMode": "null as zero",
+			"percentage": false,
+			"pointradius": 3,
+			"points": true,
+			"renderer": "flot",
+			"seriesOverrides": [],
+			"spaceLength": 10,
+			"stack": false,
+			"steppedLine": false,
+			"targets": [{
+				"alias": "",
+				"appInsights": {
+					"groupBy": "none",
+					"metricName": "select",
+					"rawQuery": false,
+					"rawQueryString": "",
+					"spliton": "",
+					"timeGrainType": "auto",
+					"xaxis": "timestamp",
+					"yaxis": ""
+				},
+				"azureMonitor": {
+					"aggOptions": ["None",
+					"Average",
+					"Minimum",
+					"Maximum",
+					"Total",
+					"Count"],
+					"aggregation": "Average",
+					"dimension": "",
+					"dimensionFilter": "*",
+					"dimensions": [],
+					"metricDefinition": "Microsoft.Compute/virtualMachines",
+					"metricName": "Percentage CPU",
+					"resourceGroup": "rnd-scale32-230718-rg",
+					"resourceName": "vmha230718-vm0",
+					"timeGrain": "auto",
+					"timeGrains": [{
+						"text": "auto",
+						"value": "auto"
+					},
+					{
+						"text": "1 minute",
+						"value": "PT1M"
+					},
+					{
+						"text": "5 minutes",
+						"value": "PT5M"
+					},
+					{
+						"text": "15 minutes",
+						"value": "PT15M"
+					},
+					{
+						"text": "30 minutes",
+						"value": "PT30M"
+					},
+					{
+						"text": "1 hour",
+						"value": "PT1H"
+					},
+					{
+						"text": "6 hours",
+						"value": "PT6H"
+					},
+					{
+						"text": "12 hours",
+						"value": "PT12H"
+					},
+					{
+						"text": "1 day",
+						"value": "P1D"
+					}]
+				},
+				"expr": "",
+				"format": "time_series",
+				"intervalFactor": 1,
+				"queryType": "Azure Monitor",
+				"rawSql": "SELECT\r\n  $__time(time_stamp),\r\n  resp_time\r\n  from\r\n  (SELECT no_enforcers,\r\n          no_images,\r\n   \t\t  gateway_calls,\r\n   \t      gateway_bytes,\r\n          TIMESTAMP AS time_stamp,\r\n          agent_log,\r\n          agent_log AS log_statement,\r\n          extract(epoch\r\n          FROM TIMESTAMP) - lag(extract(epoch\r\n          FROM TIMESTAMP)) OVER (\r\n         ORDER BY TIMESTAMP) AS resp_time\r\n   FROM rtt_testing ) AS BABU\r\nWHERE\r\n  $__timeFilter(time_stamp) and log_statement='host.echo.replay'",
+				"refId": "A"
+			},
+			{
+				"appInsights": {
+					"groupBy": "none",
+					"metricName": "select",
+					"rawQuery": false,
+					"rawQueryString": "",
+					"spliton": "",
+					"timeGrainType": "auto",
+					"xaxis": "timestamp",
+					"yaxis": ""
+				},
+				"azureMonitor": {
+					"aggOptions": ["None",
+					"Average",
+					"Minimum",
+					"Maximum",
+					"Total",
+					"Count"],
+					"aggregation": "Average",
+					"dimension": "",
+					"dimensionFilter": "*",
+					"dimensions": [],
+					"metricDefinition": "Microsoft.Compute/virtualMachines",
+					"metricName": "Percentage CPU",
+					"resourceGroup": "rnd-scale32-230718-rg",
+					"resourceName": "vmha230718-vm1",
+					"timeGrain": "auto",
+					"timeGrains": [{
+						"text": "auto",
+						"value": "auto"
+					},
+					{
+						"text": "1 minute",
+						"value": "PT1M"
+					},
+					{
+						"text": "5 minutes",
+						"value": "PT5M"
+					},
+					{
+						"text": "15 minutes",
+						"value": "PT15M"
+					},
+					{
+						"text": "30 minutes",
+						"value": "PT30M"
+					},
+					{
+						"text": "1 hour",
+						"value": "PT1H"
+					},
+					{
+						"text": "6 hours",
+						"value": "PT6H"
+					},
+					{
+						"text": "12 hours",
+						"value": "PT12H"
+					},
+					{
+						"text": "1 day",
+						"value": "P1D"
+					}]
+				},
+				"queryType": "Azure Monitor",
+				"refId": "B"
+			},
+			{
+				"appInsights": {
+					"groupBy": "none",
+					"metricName": "select",
+					"rawQuery": false,
+					"rawQueryString": "",
+					"spliton": "",
+					"timeGrainType": "auto",
+					"xaxis": "timestamp",
+					"yaxis": ""
+				},
+				"azureMonitor": {
+					"aggOptions": ["None",
+					"Average",
+					"Minimum",
+					"Maximum",
+					"Total",
+					"Count"],
+					"aggregation": "Total",
+					"dimension": "",
+					"dimensionFilter": "*",
+					"dimensions": [],
+					"metricDefinition": "Microsoft.Compute/virtualMachines",
+					"metricName": "Disk Read Bytes",
+					"resourceGroup": "rnd-scale32-230718-rg",
+					"resourceName": "vmha230718-vm0",
+					"timeGrain": "auto",
+					"timeGrains": [{
+						"text": "auto",
+						"value": "auto"
+					},
+					{
+						"text": "1 minute",
+						"value": "PT1M"
+					},
+					{
+						"text": "5 minutes",
+						"value": "PT5M"
+					},
+					{
+						"text": "15 minutes",
+						"value": "PT15M"
+					},
+					{
+						"text": "30 minutes",
+						"value": "PT30M"
+					},
+					{
+						"text": "1 hour",
+						"value": "PT1H"
+					},
+					{
+						"text": "6 hours",
+						"value": "PT6H"
+					},
+					{
+						"text": "12 hours",
+						"value": "PT12H"
+					},
+					{
+						"text": "1 day",
+						"value": "P1D"
+					}]
+				},
+				"queryType": "Azure Monitor",
+				"refId": "C"
+			},
+			{
+				"appInsights": {
+					"groupBy": "none",
+					"metricName": "select",
+					"rawQuery": false,
+					"rawQueryString": "",
+					"spliton": "",
+					"timeGrainType": "auto",
+					"xaxis": "timestamp",
+					"yaxis": ""
+				},
+				"azureMonitor": {
+					"aggOptions": ["None",
+					"Average",
+					"Minimum",
+					"Maximum",
+					"Total",
+					"Count"],
+					"aggregation": "Total",
+					"dimension": "",
+					"dimensionFilter": "*",
+					"dimensions": [],
+					"metricDefinition": "Microsoft.Compute/virtualMachines",
+					"metricName": "Disk Write Bytes",
+					"resourceGroup": "rnd-scale32-230718-rg",
+					"resourceName": "vmha230718-vm0",
+					"timeGrain": "auto",
+					"timeGrains": [{
+						"text": "auto",
+						"value": "auto"
+					},
+					{
+						"text": "1 minute",
+						"value": "PT1M"
+					},
+					{
+						"text": "5 minutes",
+						"value": "PT5M"
+					},
+					{
+						"text": "15 minutes",
+						"value": "PT15M"
+					},
+					{
+						"text": "30 minutes",
+						"value": "PT30M"
+					},
+					{
+						"text": "1 hour",
+						"value": "PT1H"
+					},
+					{
+						"text": "6 hours",
+						"value": "PT6H"
+					},
+					{
+						"text": "12 hours",
+						"value": "PT12H"
+					},
+					{
+						"text": "1 day",
+						"value": "P1D"
+					}]
+				},
+				"queryType": "Azure Monitor",
+				"refId": "D"
+			},
+			{
+				"appInsights": {
+					"groupBy": "none",
+					"metricName": "select",
+					"rawQuery": false,
+					"rawQueryString": "",
+					"spliton": "",
+					"timeGrainType": "auto",
+					"xaxis": "timestamp",
+					"yaxis": ""
+				},
+				"azureMonitor": {
+					"aggOptions": ["None",
+					"Average",
+					"Minimum",
+					"Maximum",
+					"Total",
+					"Count"],
+					"aggregation": "Total",
+					"dimension": "",
+					"dimensionFilter": "*",
+					"dimensions": [],
+					"metricDefinition": "Microsoft.Compute/virtualMachines",
+					"metricName": "Disk Read Bytes",
+					"resourceGroup": "rnd-scale32-230718-rg",
+					"resourceName": "vmha230718-vm1",
+					"timeGrain": "auto",
+					"timeGrains": [{
+						"text": "auto",
+						"value": "auto"
+					},
+					{
+						"text": "1 minute",
+						"value": "PT1M"
+					},
+					{
+						"text": "5 minutes",
+						"value": "PT5M"
+					},
+					{
+						"text": "15 minutes",
+						"value": "PT15M"
+					},
+					{
+						"text": "30 minutes",
+						"value": "PT30M"
+					},
+					{
+						"text": "1 hour",
+						"value": "PT1H"
+					},
+					{
+						"text": "6 hours",
+						"value": "PT6H"
+					},
+					{
+						"text": "12 hours",
+						"value": "PT12H"
+					},
+					{
+						"text": "1 day",
+						"value": "P1D"
+					}]
+				},
+				"queryType": "Azure Monitor",
+				"refId": "E"
+			},
+			{
+				"appInsights": {
+					"groupBy": "none",
+					"metricName": "select",
+					"rawQuery": false,
+					"rawQueryString": "",
+					"spliton": "",
+					"timeGrainType": "auto",
+					"xaxis": "timestamp",
+					"yaxis": ""
+				},
+				"azureMonitor": {
+					"aggOptions": ["None",
+					"Average",
+					"Minimum",
+					"Maximum",
+					"Total",
+					"Count"],
+					"aggregation": "Total",
+					"dimension": "",
+					"dimensionFilter": "*",
+					"dimensions": [],
+					"metricDefinition": "Microsoft.Compute/virtualMachines",
+					"metricName": "Disk Write Bytes",
+					"resourceGroup": "rnd-scale32-230718-rg",
+					"resourceName": "vmha230718-vm1",
+					"timeGrain": "auto",
+					"timeGrains": [{
+						"text": "auto",
+						"value": "auto"
+					},
+					{
+						"text": "1 minute",
+						"value": "PT1M"
+					},
+					{
+						"text": "5 minutes",
+						"value": "PT5M"
+					},
+					{
+						"text": "15 minutes",
+						"value": "PT15M"
+					},
+					{
+						"text": "30 minutes",
+						"value": "PT30M"
+					},
+					{
+						"text": "1 hour",
+						"value": "PT1H"
+					},
+					{
+						"text": "6 hours",
+						"value": "PT6H"
+					},
+					{
+						"text": "12 hours",
+						"value": "PT12H"
+					},
+					{
+						"text": "1 day",
+						"value": "P1D"
+					}]
+				},
+				"queryType": "Azure Monitor",
+				"refId": "F"
+			}],
+			"thresholds": [],
+			"timeFrom": null,
+			"timeShift": null,
+			"title": "VM Utilization",
+			"tooltip": {
+				"shared": true,
+				"sort": 0,
+				"value_type": "individual"
+			},
+			"type": "graph",
+			"xaxis": {
+				"buckets": null,
+				"mode": "time",
+				"name": null,
+				"show": true,
+				"values": []
+			},
+			"yaxes": [{
+				"decimals": 6,
+				"format": "none",
+				"label": null,
+				"logBase": 1,
+				"max": null,
+				"min": "0",
+				"show": true
+			},
+			{
+				"format": "short",
+				"label": null,
+				"logBase": 1,
+				"max": null,
+				"min": null,
+				"show": true
+			}],
+			"yaxis": {
+				"align": false,
+				"alignLevel": null
+			}
+		},
+		{
+			"aliasColors": {
+				
+			},
+			"bars": false,
+			"dashLength": 10,
+			"dashes": false,
 			"datasource": "${DS_PROMETHEUS}",
 			"decimals": 2,
 			"editable": true,
@@ -617,10 +1959,10 @@
 				
 			},
 			"gridPos": {
-				"h": 7,
-				"w": 24,
+				"h": 11,
+				"w": 12,
 				"x": 0,
-				"y": 12
+				"y": 31
 			},
 			"id": 1,
 			"legend": {
@@ -631,7 +1973,7 @@
 				"hideZero": true,
 				"max": true,
 				"min": false,
-				"rightSide": true,
+				"rightSide": false,
 				"show": true,
 				"total": false,
 				"values": true
@@ -649,12 +1991,12 @@
 			"stack": false,
 			"steppedLine": false,
 			"targets": [{
-				"expr": "sum(container_memory_usage_bytes{instance=~'$node',image=~'$imagename'}) by (image,instance)",
+				"expr": "sum(container_memory_usage_bytes{instance=~'$node',image=~'$imagename'}) by (image,instance,name)",
 				"format": "time_series",
 				"hide": false,
 				"interval": "10s",
 				"intervalFactor": 2,
-				"legendFormat": "{{image}}  --  {{instance}}",
+				"legendFormat": "{{image}}  --  {{instance}} --{{name}}",
 				"metric": "container_memory_usage_bytes",
 				"refId": "A",
 				"step": 240
@@ -715,10 +2057,10 @@
 				
 			},
 			"gridPos": {
-				"h": 7,
-				"w": 24,
-				"x": 0,
-				"y": 19
+				"h": 11,
+				"w": 12,
+				"x": 12,
+				"y": 31
 			},
 			"id": 2,
 			"legend": {
@@ -727,7 +2069,7 @@
 				"current": true,
 				"max": true,
 				"min": false,
-				"rightSide": true,
+				"rightSide": false,
 				"show": true,
 				"total": false,
 				"values": true
@@ -746,10 +2088,10 @@
 			"steppedLine": false,
 			"targets": [{
 				"alias": "",
-				"expr": "sum(rate(container_cpu_user_seconds_total{instance=~'$node',image=~'$imagename'}[5m]) * 100 / 4) by (image, instance)",
+				"expr": "sum(rate(container_cpu_user_seconds_total{instance=~'$node',image=~'$imagename'}[5m]) * 100 / 4) by (image, instance,name)",
 				"format": "time_series",
 				"intervalFactor": 2,
-				"legendFormat": "{{image}} - {{instance}}",
+				"legendFormat": "{{image}} - {{instance}} --{{name}}",
 				"metric": "cpu",
 				"rawSql": "SELECT\n  $__time(time_column),\n  value1\nFROM\n  metric_table\nWHERE\n  $__timeFilter(time_column)\n",
 				"refId": "A",
@@ -810,20 +2152,21 @@
 				
 			},
 			"gridPos": {
-				"h": 7,
+				"h": 9,
 				"w": 12,
 				"x": 0,
-				"y": 26
+				"y": 42
 			},
 			"id": 3,
 			"legend": {
-				"avg": false,
-				"current": false,
-				"max": false,
+				"alignAsTable": true,
+				"avg": true,
+				"current": true,
+				"max": true,
 				"min": false,
 				"show": true,
 				"total": false,
-				"values": false
+				"values": true
 			},
 			"lines": true,
 			"linewidth": 2,
@@ -900,20 +2243,21 @@
 				
 			},
 			"gridPos": {
-				"h": 7,
+				"h": 9,
 				"w": 12,
 				"x": 12,
-				"y": 26
+				"y": 42
 			},
 			"id": 4,
 			"legend": {
-				"avg": false,
-				"current": false,
-				"max": false,
+				"alignAsTable": true,
+				"avg": true,
+				"current": true,
+				"max": true,
 				"min": false,
 				"show": true,
 				"total": false,
-				"values": false
+				"values": true
 			},
 			"lines": true,
 			"linewidth": 2,
@@ -987,17 +2331,18 @@
 				"h": 7,
 				"w": 24,
 				"x": 0,
-				"y": 33
+				"y": 51
 			},
 			"id": 8,
 			"legend": {
-				"avg": false,
-				"current": false,
-				"max": false,
+				"alignAsTable": true,
+				"avg": true,
+				"current": true,
+				"max": true,
 				"min": false,
 				"show": true,
 				"total": false,
-				"values": false
+				"values": true
 			},
 			"lines": true,
 			"linewidth": 1,
@@ -1129,7 +2474,7 @@
 			}]
 		},
 		"time": {
-			"from": "2018-07-23T13:41:08.394Z",
+			"from": "now-18h",
 			"to": "now"
 		},
 		"timepicker": {
@@ -1156,7 +2501,7 @@
 		"timezone": "utc",
 		"title": "AquaScale Monitor",
 		"uid": "yryvTDdmk",
-		"version": 6
+		"version": 28
 	},
 	"overwrite": true,
 	"inputs": [{
@@ -1170,6 +2515,14 @@
 		"type": "datasource",
 		"pluginId": "prometheus",
 		"value": "Prometheus"
+	},
+	{
+		"name": "DS_AZURE_MONITOR",
+		"label": "AZURE_MONITOR",
+		"description": "",
+		"type": "datasource",
+		"pluginId": "grafana-azure-monitor-datasource",
+		"pluginName": "Azure Monitor"
 	}],
 	"folderId": 0
- }
+}
