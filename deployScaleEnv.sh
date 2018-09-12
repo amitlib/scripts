@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. /etc/init.d/functions
+
 #Globals#
 AQUA_REGISTRY="${1}"
 AQUA_VERSION="${2}"
@@ -30,18 +32,54 @@ else
 fi
 echo "step end: validate input parameters"
 
+step() {
+    echo -n "$@"
+
+    STEP_OK=0
+    [[ -w /tmp ]] && echo $STEP_OK > /tmp/step.$$
+}
+
+try() {
+    # Check for `-b' argument to run command in the background.
+    local BG=
+
+    [[ $1 == -b ]] && { BG=1; shift; }
+    [[ $1 == -- ]] && {       shift; }
+
+    # Run the command.
+    if [[ -z $BG ]]; then
+        "$@"
+    else
+        "$@" &
+    fi
+
+    # Check if command failed and update $STEP_OK if so.
+    local EXIT_CODE=$?
+
+    if [[ $EXIT_CODE -ne 0 ]]; then
+        STEP_OK=$EXIT_CODE
+        [[ -w /tmp ]] && echo $STEP_OK > /tmp/step.$$
+
+        if [[ -n $LOG_STEPS ]]; then
+            local FILE=$(readlink -m "${BASH_SOURCE[1]}")
+            local LINE=${BASH_LINENO[0]}
+
+            echo "$FILE: line $LINE: Command \`$*' failed with exit code $EXIT_CODE." >> "$LOG_STEPS"
+        fi
+    fi
+
+    return $EXIT_CODE
+}
+
+next() {
+    [[ -f /tmp/step.$$ ]] && { STEP_OK=$(< /tmp/step.$$); rm -f /tmp/step.$$; }
+    [[ $STEP_OK -eq 0 ]]  && echo_success || echo_failure
+    echo
+
+    return $STEP_OK
+}
 
 #functions
-function check_exit {
-    cmd_output=$($@)
-    local status=$?
-    echo $status
-    if [ $status -ne 0 ]; then
-        echo "error with $1" >&2
-    fi
-    echo "sucess with $1, return code: $status"
-    return $status
-}
 
 deployCadvisor()
 {
@@ -106,7 +144,6 @@ if [[ $HOST_VM == "vm1" && $ENV_TYPE == "scale" ]] || [[ $HOST_VM == "vm0" && $E
     -e SCALOCK_DBNAME=scalock \
     -e SCALOCK_DBHOST=$AQUA_DB_SERVER \
     -e SCALOCK_AUDIT_DBUSER=${AQUA_DB_USER} \
-    -e SCALOCK_DB_MAX_CONNECTIONS=150 \
     -e SCALOCK_AUDIT_DBPASSWORD=${AQUA_DB_PASSWORD} \
     -e SCALOCK_AUDIT_DBNAME=slk_audit \
     -e SCALOCK_AUDIT_DBHOST=$AQUA_DB_SERVER \
@@ -198,28 +235,31 @@ fi
 
 main()
 {
-echo "step start: deployCadvisor"
-check_exit deployCadvisor
-echo "step end: deployCadvisor"
+echo "$ENV_TYPE: $ENV_TYPE"
+echo "HOST_VM: $HOST_VM"
 
-echo "step start: deployAquaServer"
-check_exit deployAquaServer
-echo "step end: deployAquaServer"
+step "deployCadvisor: "
+try deployCadvisor
+next
 
-echo "step start: deployAquaGateway"
-check_exit deployAquaGateway
-echo "step end: deployAquaGateway"
+step "deployAquaServer: "
+try deployAquaServer
+next
 
-echo "step start: deployMonitors"
-check_exit deployMonitors
-echo "step end: deployMonitors"
+step "deployAquaGateway: "
+try deployAquaGateway
+next
 
-echo "step start: addRegestries"
-check_exit addRegestries
-echo "step end: addRegestries"
+step "deployMonitors: "
+try deployMonitors
+next
 
-echo "step start: deployAquaScanner"
-deployAquaScanner
-echo "step end deployAquaScanner"
+step "addRegestries: "
+try addRegestries
+next
+
+step "deployAquaScanner: "
+try deployAquaScanner
+next
 }
 main
