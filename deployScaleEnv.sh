@@ -162,7 +162,7 @@ fi
 }
 deployMonitors()
 {
-if [ $HOST_VM == "vm2" && $ENV_TYPE == "scale" ];then
+if [[ $HOST_VM == "vm2" && $ENV_TYPE == "scale" ]];then
     sudo mkdir -p /etc/prometheus
     sudo chown -R $(whoami):$(whoami) /etc/prometheus
     echo "step start:Deploying prometheus"
