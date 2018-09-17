@@ -94,7 +94,7 @@ docker run --volume=/:/rootfs:ro \
 
 deployAquaServer()
 {
-if [ $HOST_VM == "vm0" ];then
+echo "step start: deployAquaServer"
 echo "step start: verify DB connection"
     export PGPASSWORD=${AQUA_DB_PASSWORD}
     until [ "$( psql -h $AQUA_DB_SERVER -d postgres -U $AQUA_DB_USER -tAc "SELECT 1 FROM pg_database WHERE datname='postgres'" )" = '1' ];do 
@@ -123,19 +123,18 @@ echo "step start:Deploying Aqua server version: $AQUA_REG/$AQUA_VER "
     ( docker logs aqua-web -f & ) | grep -q "http server started"
     echo "step end: monitoring server logs to validate startup"
 echo "step start:Deploying Aqua server version: $AQUA_REG/$AQUA_VER "
-fi
 }
 deployAquaGateway()
 {
-if [[ $HOST_VM == "vm1" && $ENV_TYPE == "scale" ]] || [[ $HOST_VM == "vm0" && $ENV_TYPE == "scan" ]] || [[ $HOST_VM == "vm0" && $ENV_TYPE == "enforcer" ]];then
-    echo "step start: verify DB connection"
-    export PGPASSWORD=${AQUA_DB_PASSWORD}
-    until [ "$( psql -h $AQUA_DB_SERVER -d postgres -U $AQUA_DB_USER -tAc "SELECT 1 FROM pg_database WHERE datname='postgres'" )" = '1' ];do 
-    sleep 10
-    done
-    echo "step end: verify DB connection"
-    echo "step start: start aqua gateway"
-    docker run -d --name aqua-gateway \
+echo "step start: deployAquaGateway"
+echo "step start: verify DB connection"
+export PGPASSWORD=${AQUA_DB_PASSWORD}
+until [ "$( psql -h $AQUA_DB_SERVER -d postgres -U $AQUA_DB_USER -tAc "SELECT 1 FROM pg_database WHERE datname='postgres'" )" = '1' ];do 
+sleep 10
+done
+echo "step end: verify DB connection"
+echo "step start: start aqua gateway"
+docker run -d --name aqua-gateway \
     -p 3622:3622 \
     -p 8085:8085 \
     --net=host \
@@ -147,90 +146,83 @@ if [[ $HOST_VM == "vm1" && $ENV_TYPE == "scale" ]] || [[ $HOST_VM == "vm0" && $E
     -e SCALOCK_AUDIT_DBPASSWORD=${AQUA_DB_PASSWORD} \
     -e SCALOCK_AUDIT_DBNAME=slk_audit \
     -e SCALOCK_AUDIT_DBHOST=$AQUA_DB_SERVER \
-    $AQUA_REGISTRY/gateway:$AQUA_VERSION
-    echo "step end: start aqua gateway"
-fi
+$AQUA_REGISTRY/gateway:$AQUA_VERSION
+echo "step end: start aqua gateway"
 }
 deployAquaScanner()
 {
-if [[ $HOST_VM == "vm1" && $ENV_TYPE == "scan" ]];then
-    lServerHost="$(hostname | awk -F'-' '{ print $1 }')-vm0"
-    docker run --name scanner1-$(hostname | awk -F'-' ' { print $NF } ') -d \
-    -v /var/run/docker.sock:/var/run/docker.sock \
-    $AQUA_REGISTRY/scanner-cli:${AQUA_VERSION} daemon --direct-cc --user administrator --password $AQUA_ADMIN_PASSWORD --host http://${lServerHost}:8080
-fi
+lServerHost="$(hostname | awk -F'-' '{ print $1 }')-vm0"
+docker run --name scanner1-$(hostname | awk -F'-' ' { print $NF } ') -d \
+-v /var/run/docker.sock:/var/run/docker.sock \
+$AQUA_REGISTRY/scanner-cli:${AQUA_VERSION} daemon --direct-cc --user administrator --password $AQUA_ADMIN_PASSWORD --host http://${lServerHost}:8080
 }
 deployMonitors()
 {
-if [[ $HOST_VM == "vm2" && $ENV_TYPE == "scale" ]];then
-    sudo mkdir -p /etc/prometheus
-    sudo chown -R $(whoami):$(whoami) /etc/prometheus
-    echo "step start:Deploying prometheus"
-    docker run -d \
-    -p 9090:9090 --net="host" \
-    -v /etc/prometheus:/etc/prometheus \
-    prom/prometheus \
-    --config.file=/etc/prometheus/prometheus.yml \
-    --web.enable-lifecycle \
-    --web.enable-admin-api
-    echo "step end:Deploying prometheus"
+sudo mkdir -p /etc/prometheus
+sudo chown -R $(whoami):$(whoami) /etc/prometheus
+echo "step start:Deploying prometheus"
+docker run -d \
+-p 9090:9090 --net="host" \
+-v /etc/prometheus:/etc/prometheus \
+prom/prometheus \
+--config.file=/etc/prometheus/prometheus.yml \
+--web.enable-lifecycle \
+--web.enable-admin-api
+echo "step end:Deploying prometheus"
 
-    echo "step start: deploying postgrsql DB"
-    docker run --name postgres \
-    -e POSTGRES_PASSWORD=Password1 \
-    -p 5432:5432 \
-    -d postgres:9.6
-    echo "step end: deploying postgrsql DB"
+echo "step start: deploying postgrsql DB"
+docker run --name postgres \
+-e POSTGRES_PASSWORD=Password1 \
+-p 5432:5432 \
+-d postgres:9.6
+echo "step end: deploying postgrsql DB"
 
-    echo "step start create aqua table"
-    wget https://raw.githubusercontent.com/amitlib/scripts/master/aqua_monitor.sql
-    sleep 30
-    export PGPASSWORD=Password1
-    psql -f aqua_monitor.sql -h $(hostname -i) -d postgres -U postgres
-    echo "step end create aqua table"
+echo "step start create aqua table"
+wget https://raw.githubusercontent.com/amitlib/scripts/master/aqua_monitor.sql
+sleep 30
+export PGPASSWORD=Password1
+psql -f aqua_monitor.sql -h $(hostname -i) -d postgres -U postgres
+echo "step end create aqua table"
 
-    echo "step start:Deploying grafana-storage volume"
-    docker volume create grafana-storage
-    echo "step end:Deploying grafana-storage volume"
+echo "step start:Deploying grafana-storage volume"
+docker volume create grafana-storage
+echo "step end:Deploying grafana-storage volume"
 
-    echo "step start:Deploying Grafana"
-    docker run -d \
-    -p 3000:3000 \
-    --name=grafana \
-    -v grafana-storage:/var/lib/grafana \
-    grafana/grafana
-    echo "step end:Deploying Grafana"
-    sleep 30
-    echo "step start: add postgresql data source"
-    curl -s -H 'Content-Type: application/json' -u 'admin:admin' -d '{"name":"NFT-Postgres","type":"postgres","access": "proxy","url": '"$(hostname -i):5432"',"password": "Password1","user": "postgres","database": "postgres","basicAuth": false,"isDefault": false,"jsonData": {"sslmode": "disable"},"readOnly": false}' -X POST "http://$(hostname -i):3000/api/datasources"
-    echo "step end: add postgresql data source"
+echo "step start:Deploying Grafana"
+docker run -d \
+-p 3000:3000 \
+--name=grafana \
+-v grafana-storage:/var/lib/grafana \
+grafana/grafana
+echo "step end:Deploying Grafana"
+sleep 30
+echo "step start: add postgresql data source"
+curl -s -H 'Content-Type: application/json' -u 'admin:admin' -d '{"name":"NFT-Postgres","type":"postgres","access": "proxy","url": '"$(hostname -i):5432"',"password": "Password1","user": "postgres","database": "postgres","basicAuth": false,"isDefault": false,"jsonData": {"sslmode": "disable"},"readOnly": false}' -X POST "http://$(hostname -i):3000/api/datasources"
+echo "step end: add postgresql data source"
 
-    echo "step start: add prometheus data source"
-    curl -s -H 'Content-Type: application/json' -u 'admin:admin' -d '{"name":"Prometheus","type":"prometheus","access": "proxy","url": '"http://$(hostname -i):9090"',"password": "","user": "","database": "","basicAuth": false,"isDefault": true,"jsonData": {},"readOnly": false}' -X POST "http://$(hostname -i):3000/api/datasources"
-    echo "step end: add prometheus data source"
+echo "step start: add prometheus data source"
+curl -s -H 'Content-Type: application/json' -u 'admin:admin' -d '{"name":"Prometheus","type":"prometheus","access": "proxy","url": '"http://$(hostname -i):9090"',"password": "","user": "","database": "","basicAuth": false,"isDefault": true,"jsonData": {},"readOnly": false}' -X POST "http://$(hostname -i):3000/api/datasources"
+echo "step end: add prometheus data source"
 
-    echo "step start: get Grafana dashboard from GitHub"
-    sleep 10
-    wget https://raw.githubusercontent.com/amitlib/scripts/master/grafanaDashboardAquaNDockerMonitoring.json
-    echo "step end: get Grafana dashboard from GitHub"
+echo "step start: get Grafana dashboard from GitHub"
+sleep 10
+wget https://raw.githubusercontent.com/amitlib/scripts/master/grafanaDashboardAquaNDockerMonitoring.json
+echo "step end: get Grafana dashboard from GitHub"
 
-    echo "step start: add dashboard"
-    curl --user admin:admin "http://$(hostname -i):3000/api/dashboards/import" -X POST -H 'Content-Type:application/json;charset=UTF-8' -H 'Accept: application/json, text/plain, */*' --data-binary @./grafanaDashboardAquaNDockerMonitoring.json 
-    echo "step start: add dashboard"
-fi
+echo "step start: add dashboard"
+curl --user admin:admin "http://$(hostname -i):3000/api/dashboards/import" -X POST -H 'Content-Type:application/json;charset=UTF-8' -H 'Accept: application/json, text/plain, */*' --data-binary @./grafanaDashboardAquaNDockerMonitoring.json 
+echo "step start: add dashboard"
 }
 
 addRegestries()
 {
-if [ $HOST_VM == "vm0" ];then
-    echo "step start: add RHEL regestry"
-    RHEL_REG=$(curl -s -H 'Content-Type: application/json' -u "administrator:$AQUA_ADMIN_PASSWORD" -X POST http://$(hostname -i):8080/api/v1/registries -d '{"name": "registry.access.redhat.com","type": "V1/V2","url": "https://registry.access.redhat.com","username": "","password": "","auto_pull": false}')
-    echo "step end: add RHEL regestry"
+echo "step start: add RHEL regestry"
+RHEL_REG=$(curl -s -H 'Content-Type: application/json' -u "administrator:$AQUA_ADMIN_PASSWORD" -X POST http://$(hostname -i):8080/api/v1/registries -d '{"name": "registry.access.redhat.com","type": "V1/V2","url": "https://registry.access.redhat.com","username": "","password": "","auto_pull": false}')
+echo "step end: add RHEL regestry"
 
-    echo "step start: add scale regestry"
-    SCALE_REG=$(curl -s -H 'Content-Type: application/json' -u "administrator:$AQUA_ADMIN_PASSWORD" -X POST http://$(hostname -i):8080/api/v1/registries -d '{"name": "aquascale","type": "ACR","url": "https://aquascale.azurecr.io","username": "aquascale","password": "'$AQUASCALE_REG_PASSWORD'","auto_pull": false}')
-    echo "step end: add scale regestry"
-fi
+echo "step start: add scale regestry"
+SCALE_REG=$(curl -s -H 'Content-Type: application/json' -u "administrator:$AQUA_ADMIN_PASSWORD" -X POST http://$(hostname -i):8080/api/v1/registries -d '{"name": "aquascale","type": "ACR","url": "https://aquascale.azurecr.io","username": "aquascale","password": "'$AQUASCALE_REG_PASSWORD'","auto_pull": false}')
+echo "step end: add scale regestry"
 }
 
 main()
@@ -242,24 +234,34 @@ step "deployCadvisor: "
 try deployCadvisor
 next
 
-step "deployAquaServer: "
-try deployAquaServer
-next
+if [ $HOST_VM == "vm0" ];then
+    step "deployAquaServer: "
+    try deployAquaServer
+    next
+fi
 
-step "deployAquaGateway: "
-try deployAquaGateway
-next
+if [[ $HOST_VM == "vm1" && $ENV_TYPE == "scale" ]] || [[ $HOST_VM == "vm0" && $ENV_TYPE == "scan" ]] || [[ $HOST_VM == "vm0" && $ENV_TYPE == "enforcer" ]];then
+    step "deployAquaGateway: "
+    try deployAquaGateway
+    next
+fi
 
-step "deployMonitors: "
-try deployMonitors
-next
+if [[ $HOST_VM == "vm2" && $ENV_TYPE == "scale" ]];then
+    step "deployMonitors: "
+    try deployMonitors
+    next
+fi
 
-step "addRegestries: "
-try addRegestries
-next
+if [ $HOST_VM == "vm0" ];then
+    step "addRegestries: "
+    try addRegestries
+    next
+fi
 
-step "deployAquaScanner: "
-try deployAquaScanner
-next
+if [[ $HOST_VM == "vm1" && $ENV_TYPE == "scan" ]];then
+    step "deployAquaScanner: "
+    try deployAquaScanner
+    next
+fi
 }
 main
