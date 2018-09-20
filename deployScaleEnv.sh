@@ -227,7 +227,7 @@ echo "step end: add scale regestry"
 
 main()
 {
-echo "$ENV_TYPE: $ENV_TYPE"
+echo "ENV_TYPE: $ENV_TYPE"
 echo "HOST_VM: $HOST_VM"
 
 step "deployCadvisor: "
