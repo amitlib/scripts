@@ -74,7 +74,7 @@ echo "step start: validations"
 echo "SERVER_IP: $SERVER_IP" >> /home/ubuntu/scripts/logs/extension.log
 echo "AQUA_REPO: $AQUA_REPO" >> /home/ubuntu/scripts/logs/extension.log
 echo "AQUA_VERSION: $AQUA_VERSION" >> /home/ubuntu/scripts/logs/extension.log
-docker login -u $DOCKER_USER -p $DOCKER_PASS automation.azurecr.io
+docker login -u $DOCKER_USER -p $DOCKER_PASS $AQUA_REPO
 echo "step end: validations"
 
 
