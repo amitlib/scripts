@@ -126,7 +126,7 @@ else
 	-e AQUA_LOGICAL_NAME="scale-enforcer-$(hostname)" \
 	-e RESTART_CONTAINERS="no" \
 	-v /var/run/docker.sock:/var/run/docker.sock \
-	automation.azurecr.io/$AQUA_REPO/agent:$AQUA_VERSION
+	$AQUA_REPO/enforcer:$AQUA_VERSION
 	echo "step end: aqua agent container mode"
 fi
 
