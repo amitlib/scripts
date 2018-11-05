@@ -136,4 +136,4 @@ Write-Log "INFO" "step end: run Azure Agent: Time taken: $((Get-Date).Subtract($
 validateArguments
 downloadFilesEnforcer
 deployAquaEnforcer
-#runAzureAgent
+runAzureAgent
