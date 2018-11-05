@@ -10,8 +10,8 @@ Param (
   [string]$WIN_ENFORCER_MSI_TO_INSTALL,
   [string]$WIN_SCANNER_BRANCH,
   [string]$WIN_SCANNER_MSI_TO_INSTALL
-  [string]$STORAGE_ACCOUNT_NAME
-  [string]$OPINSIGHTS_WORKSPACE_ID
+  [string]$STORAGE_ACCOUNT_NAME,
+  [string]$OPINSIGHTS_WORKSPACE_ID,
   [string]$WORKSPACE_KEY
 )
 if (!(Test-Path c:\temp)) {New-Item -ItemType Directory c:\temp};
