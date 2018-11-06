@@ -100,8 +100,6 @@ if (-not ([string]::IsNullOrEmpty($installedEnforcer))) {New-Item c:\temp\job_en
 else 
 {New-Item c:\temp\job_enforcer_failed.txt -type file -force -value "Aqua Enforcer install failed at $(Get-Date -format 'u')"}
 Write-Log "INFO" "step end: validate Enforcer installation" $logfile
-downloadFilesScanner
-deployAquaScannerCli
 }
 
 function deployAquaScannerCli(){
@@ -117,7 +115,6 @@ if (-not ([string]::IsNullOrEmpty($installed))) {New-Item c:\temp\job_scanner_co
 else 
 {New-Item c:\temp\job_scanner_failed.txt -type file -force -value "Aqua install scanner cli failed at $(Get-Date -format 'u')"}
 Write-Log "INFO" "step end: validate Scanner CLI installation" $logfile
-runAzureAgent
 }
 
 function runAzureAgent(){
@@ -137,3 +134,6 @@ Write-Log "INFO" "step end: run Azure Agent: Time taken: $((Get-Date).Subtract($
 validateArguments
 downloadFilesEnforcer
 deployAquaEnforcer
+downloadFilesScanner
+deployAquaScannerCli
+runAzureAgent
