@@ -9,7 +9,7 @@ Param (
   [string]$WIN_ENFORCER_BRANCH,
   [string]$WIN_ENFORCER_MSI_TO_INSTALL,
   [string]$WIN_SCANNER_BRANCH,
-  [string]$WIN_SCANNER_MSI_TO_INSTALL
+  [string]$WIN_SCANNER_MSI_TO_INSTALL,
   [string]$STORAGE_ACCOUNT_NAME,
   [string]$OPINSIGHTS_WORKSPACE_ID,
   [string]$WORKSPACE_KEY
@@ -117,12 +117,13 @@ if (-not ([string]::IsNullOrEmpty($installed))) {New-Item c:\temp\job_scanner_co
 else 
 {New-Item c:\temp\job_scanner_failed.txt -type file -force -value "Aqua install scanner cli failed at $(Get-Date -format 'u')"}
 Write-Log "INFO" "step end: validate Scanner CLI installation" $logfile
+runAzureAgent
 }
 
 function runAzureAgent(){
 Write-Log "INFO" "step start: downloading Azure Agent" $logfile
 if (!(Test-Path c:\temp)) {New-Item -ItemType Directory c:\temp};
-$SA_NAME = "https://$STORAGE_ACCOUNT_NAME.blob.core.windows.net/servicefabric/scripts/MMASetupAMD64.exe" $logfile
+$SA_NAME = "https://$STORAGE_ACCOUNT_NAME.blob.core.windows.net/servicefabric/scripts/MMASetupAMD64.exe"
 $start_time = Get-Date
 Invoke-WebRequest  $SA_NAME -OutFile c:\temp\MMASetupAMD64.exe
 Write-Log "INFO" "step end: downloading Azure Agent: Time taken: $((Get-Date).Subtract($start_time).Seconds)" $logfile
@@ -136,4 +137,3 @@ Write-Log "INFO" "step end: run Azure Agent: Time taken: $((Get-Date).Subtract($
 validateArguments
 downloadFilesEnforcer
 deployAquaEnforcer
-runAzureAgent
