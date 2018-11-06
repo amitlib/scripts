@@ -131,7 +131,7 @@ $start_time_run = Get-Date
 Write-Log "INFO" "step start: running Azure Agent" $logfile
 cd c:\temp
 c:\temp\MMASetupAMD64.exe /c /t:c:\temp
-& c:\temp\setup.exe /qn ADD_OPINSIGHTS_WORKSPACE=1 OPINSIGHTS_WORKSPACE_AZURE_CLOUD_TYPE=0 OPINSIGHTS_WORKSPACE_ID=$OPINSIGHTS_WORKSPACE_ID OPINSIGHTS_WORKSPACE_KEY=$WORKSPACE_KEY AcceptEndUserLicenseAgreement=1
+c:\temp\setup.exe /qn ADD_OPINSIGHTS_WORKSPACE=1 OPINSIGHTS_WORKSPACE_AZURE_CLOUD_TYPE=0 OPINSIGHTS_WORKSPACE_ID=$OPINSIGHTS_WORKSPACE_ID OPINSIGHTS_WORKSPACE_KEY=$WORKSPACE_KEY AcceptEndUserLicenseAgreement=1
 Write-Log "INFO" "step end: run Azure Agent: Time taken: $((Get-Date).Subtract($start_time_run).Seconds)" $logfile
 }
 validateArguments
